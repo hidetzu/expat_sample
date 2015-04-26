@@ -1,8 +1,9 @@
+#include <stddef.h>
 #include <common_capi.h>
 
-#include "configMngr_xmlParser_threadConfig.h"
-#include "./expatAccesser/expatAccesser_element.h"
-#include "./expatAccesser/expatAccesser_common.h"
+#include "xmlAccesser_threadConfig.h"
+#include "../expatAccesser/expatAccesser_element.h"
+#include "../expatAccesser/expatAccesser_common.h"
 
 /************************************************/
 /*  Defines                                     */
@@ -18,6 +19,7 @@ typedef struct _t_expatAccesser_threadConfig_parseData{
     int isParse;
     t_elementData  elementData;
 }t_expatAccesser_threadConfig_parseData;
+
 
 /************************************************/
 /*  Prototypes                                  */
@@ -54,7 +56,7 @@ static const t_elementType s_config_elementTypeTbl[] = {
 /************************************************/
 /*  PublicFunctions                             */
 /************************************************/
-void* configMngr_xmlParser_threadConfig_create(t_configMngr_xmlParserFunc* pFuncOperation)
+void* xmlAccesser_threadConfig_create(t_configMngr_xmlParserFunc* pFuncOperation)
 {
     t_expatAccesser_threadConfig_parseData* pParaseData =
         (t_expatAccesser_threadConfig_parseData*)common_malloc(sizeof(t_expatAccesser_threadConfig_parseData));
@@ -66,7 +68,7 @@ void* configMngr_xmlParser_threadConfig_create(t_configMngr_xmlParserFunc* pFunc
     return pParaseData;
 }
 
-void configMngr_xmlParser_threadConfig_copy(void* pToData,  void* pFromData)
+void xmlAccesser_threadConfig_copy(void* pToData,  void* pFromData)
 {
     int i = 0;
     t_threadConfigList* pThreadConfigList = (t_threadConfigList*)pToData;

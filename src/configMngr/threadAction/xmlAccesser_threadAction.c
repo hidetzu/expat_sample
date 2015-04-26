@@ -1,8 +1,8 @@
 #include <common_capi.h>
 
-#include "configMngr_xmlParser_threadAction.h"
-#include "./expatAccesser/expatAccesser_element.h"
-#include "./expatAccesser/expatAccesser_common.h"
+#include "xmlAccesser_threadAction.h"
+#include "../expatAccesser/expatAccesser_element.h"
+#include "../expatAccesser/expatAccesser_common.h"
 
 /************************************************/
 /*  Defines                                     */
@@ -56,7 +56,7 @@ static const t_elementType s_config_elementTypeTbl[] = {
 /************************************************/
 /*  PublicFunctions                             */
 /************************************************/
-void* configMngr_xmlParser_threadAction_create(t_configMngr_xmlParserFunc* pFuncOperation)
+void* xmlAccesser_threadAction_create(t_configMngr_xmlParserFunc* pFuncOperation)
 {
     printf("%s start\n", __func__);
 
@@ -73,7 +73,7 @@ void* configMngr_xmlParser_threadAction_create(t_configMngr_xmlParserFunc* pFunc
     return pPaseData;
 }
 
-void configMngr_xmlParser_threadAction_copy(void* pToData,  void* pFromData)
+void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
 {
     t_expatAccesser_threadActionListInfo_parseData* pData
         = (t_expatAccesser_threadActionListInfo_parseData*)pFromData;

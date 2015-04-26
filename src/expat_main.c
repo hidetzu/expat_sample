@@ -48,8 +48,8 @@ void print_threadAction(void)
 
 int main (int argc, char *argv[])
 {
-//    print_threadConfig();
-    print_threadAction();
+    print_threadConfig();
+//    print_threadAction();
 
     return 0;
 }
