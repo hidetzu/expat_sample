@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<threadActionListConfig>
+	<threadActionList threadID="0">
+		<threadAction>
+			<executeFunc>testFunc1</executeFunc>
+	 	</threadAction>
+	 	<threadAction>
+			<executeFunc>testFunc2</executeFunc>
+	  	</threadAction>
+  	</threadActionList>
+	<threadActionList threadID="1">
+		<threadAction>
+			<executeFunc>testFunc1</executeFunc>
+	 	</threadAction>
+	 	<threadAction>
+			<executeFunc>testFunc2</executeFunc>
+	  	</threadAction>
+  	</threadActionList>
+</threadActionListConfig>

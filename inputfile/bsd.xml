@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<bsd>
+  <entry>
+    <name>FreeBSD</name>
+    <version>
+        <current>6.x</current>
+        <release>5.3</release>
+    </version>
+    <platform>
+        <item>alpha</item>
+        <item>amd64</item>
+        <item>ia32</item>
+        <item>ia64</item>
+        <item>pc98</item>
+        <item>sparc64</item>
+    </platform>
+  </entry>
+</bsd>
