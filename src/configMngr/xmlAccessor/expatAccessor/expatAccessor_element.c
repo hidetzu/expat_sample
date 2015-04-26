@@ -1,8 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
 
 #include <common_capi.h>
-#include "expatAccesser_element.h"
+#include "expatAccessor_element.h"
 
 /************************************************/
 /*  Defines                                     */
@@ -39,7 +37,7 @@ const static t_elementDataFunc s_config_elementDataTbl[] = {
 /************************************************/
 /*  PublicFunctions                             */
 /************************************************/
-int expatAccesser_element_initalize(char* name, e_elementDataType type, t_elementData* elmData)
+int expatAccessor_element_initalize(char* name, e_elementDataType type, t_elementData* elmData)
 {
     common_memset(elmData->name, 0x00, ELEMENT_BUF_SIZE);
     common_memcpy(elmData->name, name, common_strlen(name));
@@ -49,19 +47,19 @@ int expatAccesser_element_initalize(char* name, e_elementDataType type, t_elemen
     return 0;
 }
 
-void expatAccesser_element_cleanup(t_elementData* elmData)
+void expatAccessor_element_cleanup(t_elementData* elmData)
 {
     common_memset(elmData->name, 0x00, ELEMENT_BUF_SIZE);
     elmData->name[0]='\0';
 }
 
-int expatAccesser_element_setElementData(char* buf, t_elementData* elmData)
+int expatAccessor_element_setElementData(char* buf, t_elementData* elmData)
 {
     s_config_elementDataTbl[elmData->type].setFunc(buf, elmData);
     return 0;
 }
 
-int expatAccesser_element_getElementData(void* buf, t_elementData* elmData)
+int expatAccessor_element_getElementData(void* buf, t_elementData* elmData)
 {
     s_config_elementDataTbl[elmData->type].getFunc(buf, elmData);
     return 0;

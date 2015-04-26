@@ -1,31 +1,32 @@
+#include <config.h>
 #include <common_capi.h>
 
 #include "xmlAccessor_threadAction.h"
-#include "../expatAccesser/expatAccesser_element.h"
-#include "../expatAccesser/expatAccesser_common.h"
+#include "../expatAccessor/expatAccessor_element.h"
+#include "../expatAccessor/expatAccessor_common.h"
 
 /************************************************/
 /*  Defines                                     */
 /************************************************/
-typedef struct _t_expatAccesser_threadAction {
+typedef struct _t_expatAccessor_threadAction {
     char funcName[ELEMENT_BUF_SIZE];
-    struct _t_expatAccesser_threadAction* next;
-}t_expatAccesser_threadAction;
+    struct _t_expatAccessor_threadAction* next;
+}t_expatAccessor_threadAction;
 
-typedef struct _t_expatAccesser_threadActionList {
+typedef struct _t_expatAccessor_threadActionList {
     int threadId;
     int arrayCount;
-    t_expatAccesser_threadAction* top;
-    t_expatAccesser_threadAction* tail;
-}t_expatAccesser_threadActionList;
+    t_expatAccessor_threadAction* top;
+    t_expatAccessor_threadAction* tail;
+}t_expatAccessor_threadActionList;
 
-typedef struct _t_expatAccesser_threadActionListInfo_parseData{
+typedef struct _t_expatAccessor_threadActionListInfo_parseData{
     int threadCount;
     int currentIdx;
-    t_expatAccesser_threadActionList list[10];
+    t_expatAccessor_threadActionList list[10];
     int isThreadActionParse;
     t_elementData  elementData;
-}t_expatAccesser_threadActionListInfo_parseData;
+}t_expatAccessor_threadActionListInfo_parseData;
 
 /************************************************/
 /*  Prototypes                                  */
@@ -60,9 +61,9 @@ void* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatAccessor* pFuncOpera
 {
     printf("%s start\n", __func__);
 
-    t_expatAccesser_threadActionListInfo_parseData* pPaseData =
-        (t_expatAccesser_threadActionListInfo_parseData*)common_malloc(sizeof(t_expatAccesser_threadActionListInfo_parseData));
-    common_memset(pPaseData, 0x00, sizeof(t_expatAccesser_threadActionListInfo_parseData));
+    t_expatAccessor_threadActionListInfo_parseData* pPaseData =
+        (t_expatAccessor_threadActionListInfo_parseData*)common_malloc(sizeof(t_expatAccessor_threadActionListInfo_parseData));
+    common_memset(pPaseData, 0x00, sizeof(t_expatAccessor_threadActionListInfo_parseData));
 
     pPaseData->threadCount = 0;
     pPaseData->currentIdx  = 0;
@@ -75,8 +76,8 @@ void* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatAccessor* pFuncOpera
 
 void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
 {
-    t_expatAccesser_threadActionListInfo_parseData* pData
-        = (t_expatAccesser_threadActionListInfo_parseData*)pFromData;
+    t_expatAccessor_threadActionListInfo_parseData* pData
+        = (t_expatAccessor_threadActionListInfo_parseData*)pFromData;
     t_threadActionListInfo* actionListIinfo = (t_threadActionListInfo*) pToData;
 
     expatAccesser_print(pData);
@@ -86,13 +87,13 @@ void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
     int threadCountMax = actionListIinfo->threadCount;
     int threadCount = 0;
     for(threadCount = 0; threadCount < threadCountMax; threadCount++) {
-        t_expatAccesser_threadActionList* actionList_fromData = &pData->list[threadCount];
+        t_expatAccessor_threadActionList* actionList_fromData = &pData->list[threadCount];
         t_threadActionList* actionList_toData = &actionListIinfo->list[threadCount];
 
         actionList_toData->array = common_malloc(sizeof(t_threadAction)*actionList_fromData->arrayCount);
         common_memset(actionList_toData->array, 0x00, sizeof(t_threadAction)*actionList_toData->arrayCount);
 
-        t_expatAccesser_threadAction* action_fromData = actionList_fromData->top;
+        t_expatAccessor_threadAction* action_fromData = actionList_fromData->top;
         actionList_toData->arrayCount = 0;
         while(action_fromData) {
             t_threadAction* action_toData = &actionList_toData->array[actionList_toData->arrayCount];
@@ -106,11 +107,11 @@ void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
 
     threadCount = 0;
     for(threadCount = 0; threadCount < threadCountMax; threadCount++) {
-        t_expatAccesser_threadActionList* actionList = &pData->list[threadCount];
-        t_expatAccesser_threadAction* action = actionList->top;
+        t_expatAccessor_threadActionList* actionList = &pData->list[threadCount];
+        t_expatAccessor_threadAction* action = actionList->top;
 
         if( NULL != action && NULL != action->next ) {
-            t_expatAccesser_threadAction* tmp = action->next;
+            t_expatAccessor_threadAction* tmp = action->next;
             while(tmp) {
                 action->next = tmp->next;
                 common_free(tmp);
@@ -130,9 +131,9 @@ void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
 /************************************************/
 static int expatAccesser_initalize(void* pParseData)
 {
-    t_expatAccesser_threadActionListInfo_parseData* pData
-        = (t_expatAccesser_threadActionListInfo_parseData*)pParseData;
-    common_memset(pParseData, 0x00, sizeof(t_expatAccesser_threadActionListInfo_parseData));
+    t_expatAccessor_threadActionListInfo_parseData* pData
+        = (t_expatAccessor_threadActionListInfo_parseData*)pParseData;
+    common_memset(pParseData, 0x00, sizeof(t_expatAccessor_threadActionListInfo_parseData));
     pData->threadCount=0;
     pData->isThreadActionParse = 0;
     return 0;
@@ -140,16 +141,16 @@ static int expatAccesser_initalize(void* pParseData)
 
 static int expatAccesser_print(void* pParseData)
 {
-    t_expatAccesser_threadActionListInfo_parseData* pData
-        = (t_expatAccesser_threadActionListInfo_parseData*)pParseData;
+    t_expatAccessor_threadActionListInfo_parseData* pData
+        = (t_expatAccessor_threadActionListInfo_parseData*)pParseData;
 
     int i = 0;
     fprintf(stdout, "count=%d\n", pData->threadCount);
     for( i=0; i < pData->threadCount; i++) {
-        t_expatAccesser_threadActionList* actionList = &pData->list[i];
+        t_expatAccessor_threadActionList* actionList = &pData->list[i];
         fprintf(stdout, "threadList[%d].threadID=%d\n",
                 i, actionList->threadId);
-        t_expatAccesser_threadAction* action = NULL;
+        t_expatAccessor_threadAction* action = NULL;
         action = actionList->top;
         while(action) {
             fprintf(stdout, "funcName=%s\n",
@@ -162,8 +163,8 @@ static int expatAccesser_print(void* pParseData)
 
 static void expatAccesser_value_handler( void *userData, const XML_Char *string, int len )
 {
-    t_expatAccesser_threadActionListInfo_parseData* pData =
-        (t_expatAccesser_threadActionListInfo_parseData*)userData;
+    t_expatAccessor_threadActionListInfo_parseData* pData =
+        (t_expatAccessor_threadActionListInfo_parseData*)userData;
 
     if(!pData->isThreadActionParse)
         return;
@@ -182,15 +183,15 @@ static void expatAccesser_value_handler( void *userData, const XML_Char *string,
         printf("elemData->type=%d\n", elemData->type);
         printf("elementName=%s len=%d data=%s\n", elemData->name, len, buf );
         
-        expatAccesser_element_setElementData(buf, elemData);
+        expatAccessor_element_setElementData(buf, elemData);
         break;
     }
 }
 
 static void expatAccesser_element_start(void *userData, const XML_Char *name, const XML_Char *atts[])
 {
-    t_expatAccesser_threadActionListInfo_parseData* pData =
-        (t_expatAccesser_threadActionListInfo_parseData*)userData;
+    t_expatAccessor_threadActionListInfo_parseData* pData =
+        (t_expatAccessor_threadActionListInfo_parseData*)userData;
 
     printf("[ELEMENT] %s Start!\n", name);
     if(strcmp(name, "threadActionList") == 0 ) {
@@ -202,11 +203,11 @@ static void expatAccesser_element_start(void *userData, const XML_Char *name, co
     }
 
     if(strcmp(name, "threadAction") == 0 ) {
-        t_expatAccesser_threadActionList* actionList = 
+        t_expatAccessor_threadActionList* actionList = 
             &pData->list[pData->currentIdx];
 
-        t_expatAccesser_threadAction* newAction = 
-        (t_expatAccesser_threadAction*)common_malloc(sizeof(t_expatAccesser_threadAction));
+        t_expatAccessor_threadAction* newAction = 
+        (t_expatAccessor_threadAction*)common_malloc(sizeof(t_expatAccessor_threadAction));
         if(!actionList->top) {
             actionList->top = actionList->tail = newAction;
             newAction->next = NULL;
@@ -229,15 +230,15 @@ static void expatAccesser_element_start(void *userData, const XML_Char *name, co
             continue;
 
         t_elementData* elmData = &pData->elementData;
-        expatAccesser_element_initalize((char*)name, s_config_elementTypeTbl[idx].type,elmData);
+        expatAccessor_element_initalize((char*)name, s_config_elementTypeTbl[idx].type,elmData);
         break;
     }
 }
 
 static void expatAccesser_element_end(void *userData, const XML_Char *name)
 {
-    t_expatAccesser_threadActionListInfo_parseData* pData =
-        (t_expatAccesser_threadActionListInfo_parseData*)userData;
+    t_expatAccessor_threadActionListInfo_parseData* pData =
+        (t_expatAccessor_threadActionListInfo_parseData*)userData;
     printf("[ELEMENT] %s End!\n", name);
     if(strcmp(name, "threadActionList") == 0 ) {
         pData->threadCount++;
@@ -256,12 +257,12 @@ static void expatAccesser_element_end(void *userData, const XML_Char *name)
         if(common_strcmp(elmData->name, s_config_elementTypeTbl[idx].name ) != 0 )
             continue;
 
-        t_expatAccesser_threadActionList* actionList = &pData->list[pData->currentIdx];
-        t_expatAccesser_threadAction* action = actionList->tail;
+        t_expatAccessor_threadActionList* actionList = &pData->list[pData->currentIdx];
+        t_expatAccessor_threadAction* action = actionList->tail;
 
-        expatAccesser_element_getElementData(action->funcName, elmData);
+        expatAccessor_element_getElementData(action->funcName, elmData);
 
-        expatAccesser_element_cleanup(elmData);
+        expatAccessor_element_cleanup(elmData);
         break;
     }
 }

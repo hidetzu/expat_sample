@@ -1,4 +1,4 @@
-#include <config_xmlParser.h>
+#include <config.h>
 #include <common_capi.h>
 
 void print_threadConfig(void);
@@ -8,7 +8,7 @@ void print_threadConfig(void)
 {
     t_threadConfigList threadConfigList;
     common_memset(&threadConfigList, 0x00, sizeof(t_threadConfigList));
-    config_xmlParser_getThreadConifg("inputfile/threadConfig.xml",&threadConfigList);
+    config_getThreadConifg("inputfile/threadConfig.xml",&threadConfigList);
 
     int i = 0;
     fprintf(stdout, "count=%d\n", threadConfigList.threadCount);
@@ -23,7 +23,7 @@ void print_threadAction(void)
 {
     t_threadActionListInfo  actionListInfo;
     common_memset(&actionListInfo, 0x00, sizeof(t_threadActionListInfo));
-    config_xmlParser_getThreadAction("inputfile/threadAction.xml", &actionListInfo);
+    config_getThreadAction("inputfile/threadAction.xml", &actionListInfo);
 
 
     int threadCount = 0;

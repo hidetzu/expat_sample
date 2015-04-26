@@ -1,7 +1,7 @@
 #ifndef __EXPATACCESSER_COMMON_H__
 #define __EXPATACCESSER_COMMON_H__
 
-#include "expatAccesser_element.h"
+#include "expatAccessor_element.h"
 
 /************************************************/
 /*  Defines                                     */

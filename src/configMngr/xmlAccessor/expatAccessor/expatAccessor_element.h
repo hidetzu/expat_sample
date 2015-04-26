@@ -27,10 +27,10 @@ typedef struct _t_elementData {
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-int expatAccesser_element_initalize(char* name, e_elementDataType type, t_elementData* elmData);
-void expatAccesser_element_cleanup(t_elementData* elmData);
-int expatAccesser_element_setElementData(char* buf, t_elementData* elmData);
-int expatAccesser_element_getElementData(void* buf, t_elementData* elmData);
+int expatAccessor_element_initalize(char* name, e_elementDataType type, t_elementData* elmData);
+void expatAccessor_element_cleanup(t_elementData* elmData);
+int expatAccessor_element_setElementData(char* buf, t_elementData* elmData);
+int expatAccessor_element_getElementData(void* buf, t_elementData* elmData);
 
 
 #endif  /*__EXPATACCESSER_ELEMENT_H__*/

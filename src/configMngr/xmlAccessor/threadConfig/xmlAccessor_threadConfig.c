@@ -1,24 +1,24 @@
-#include <stddef.h>
 #include <common_capi.h>
+#include <config.h>
 
 #include "xmlAccessor_threadConfig.h"
-#include "../expatAccesser/expatAccesser_element.h"
-#include "../expatAccesser/expatAccesser_common.h"
+#include "../expatAccessor/expatAccessor_element.h"
+#include "../expatAccessor/expatAccessor_common.h"
 
 /************************************************/
 /*  Defines                                     */
 /************************************************/
-typedef struct _t_expatAccesser_threadConfig_threadData {
+typedef struct _t_expatAccessor_threadConfig_threadData {
     int  id;
     int  parentId;
-}t_expatAccesser_threadConfig_threadData;
+}t_expatAccessor_threadConfig_threadData;
 
-typedef struct _t_expatAccesser_threadConfig_parseData{
+typedef struct _t_expatAccessor_threadConfig_parseData{
     int threadCount;
-    t_expatAccesser_threadConfig_threadData threadConfigList[10];
+    t_expatAccessor_threadConfig_threadData threadConfigList[10];
     int isParse;
     t_elementData  elementData;
-}t_expatAccesser_threadConfig_parseData;
+}t_expatAccessor_threadConfig_parseData;
 
 
 /************************************************/
@@ -58,9 +58,9 @@ static const t_elementType s_config_elementTypeTbl[] = {
 /************************************************/
 void* xmlAccesser_threadConfig_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation)
 {
-    t_expatAccesser_threadConfig_parseData* pParaseData =
-        (t_expatAccesser_threadConfig_parseData*)common_malloc(sizeof(t_expatAccesser_threadConfig_parseData));
-    common_memset(pParaseData, 0x00, sizeof(t_expatAccesser_threadConfig_parseData));
+    t_expatAccessor_threadConfig_parseData* pParaseData =
+        (t_expatAccessor_threadConfig_parseData*)common_malloc(sizeof(t_expatAccessor_threadConfig_parseData));
+    common_memset(pParaseData, 0x00, sizeof(t_expatAccessor_threadConfig_parseData));
 
     *pFuncOperation = s_xmlParseFunc;
     pFuncOperation->init(pParaseData);
@@ -72,7 +72,7 @@ void xmlAccesser_threadConfig_copy(void* pToData,  void* pFromData)
 {
     int i = 0;
     t_threadConfigList* pThreadConfigList = (t_threadConfigList*)pToData;
-    t_expatAccesser_threadConfig_parseData* pPaseData = (t_expatAccesser_threadConfig_parseData*)pFromData;
+    t_expatAccessor_threadConfig_parseData* pPaseData = (t_expatAccessor_threadConfig_parseData*)pFromData;
 
     expatAccesser_print(pPaseData);
 
@@ -90,8 +90,8 @@ void xmlAccesser_threadConfig_copy(void* pToData,  void* pFromData)
 /************************************************/
 static int expatAccesser_initalize(void* pParseData)
 {
-    t_expatAccesser_threadConfig_parseData* pData = (t_expatAccesser_threadConfig_parseData*)pParseData;
-    common_memset(pParseData, 0x00, sizeof(t_expatAccesser_threadConfig_parseData));
+    t_expatAccessor_threadConfig_parseData* pData = (t_expatAccessor_threadConfig_parseData*)pParseData;
+    common_memset(pParseData, 0x00, sizeof(t_expatAccessor_threadConfig_parseData));
     pData->threadCount=0;
     pData->isParse = 0;
     return 0;
@@ -99,7 +99,7 @@ static int expatAccesser_initalize(void* pParseData)
 
 static int expatAccesser_print(void* pParseData)
 {
-    t_expatAccesser_threadConfig_parseData* pData = (t_expatAccesser_threadConfig_parseData*)pParseData;
+    t_expatAccessor_threadConfig_parseData* pData = (t_expatAccessor_threadConfig_parseData*)pParseData;
 
     int i = 0;
     fprintf(stdout, "count=%d\n", pData->threadCount);
@@ -112,7 +112,7 @@ static int expatAccesser_print(void* pParseData)
 
 static void expatAccesser_value_handler( void *userData, const XML_Char *string, int len )
 {
-    t_expatAccesser_threadConfig_parseData* pData = (t_expatAccesser_threadConfig_parseData*)userData;
+    t_expatAccessor_threadConfig_parseData* pData = (t_expatAccessor_threadConfig_parseData*)userData;
     if( !pData->isParse )
         return;
 
@@ -133,14 +133,14 @@ static void expatAccesser_value_handler( void *userData, const XML_Char *string,
         printf("elemData->type=%d\n", elemData->type);
         printf("elementName=%s len=%d data=%s\n", elemData->name, len, buf );
         
-        expatAccesser_element_setElementData(buf, elemData);
+        expatAccessor_element_setElementData(buf, elemData);
         break;
     }
 }
 
 static void expatAccesser_element_start(void *userData, const XML_Char *name, const XML_Char *atts[])
 {
-    t_expatAccesser_threadConfig_parseData* pData = (t_expatAccesser_threadConfig_parseData*)userData;
+    t_expatAccessor_threadConfig_parseData* pData = (t_expatAccessor_threadConfig_parseData*)userData;
     printf("[ELEMENT] %s Start!\n", name);
 
     if(common_strcmp(name, "threadConfig") == 0 ) {
@@ -158,14 +158,14 @@ static void expatAccesser_element_start(void *userData, const XML_Char *name, co
             continue;
 
         t_elementData* elmData = &pData->elementData;
-        expatAccesser_element_initalize((char*)name, s_config_elementTypeTbl[idx].type,elmData);
+        expatAccessor_element_initalize((char*)name, s_config_elementTypeTbl[idx].type,elmData);
         break;
     }
 }
 
 static void expatAccesser_element_end(void *userData, const XML_Char *name)
 {
-    t_expatAccesser_threadConfig_parseData* pData = (t_expatAccesser_threadConfig_parseData*)userData;
+    t_expatAccessor_threadConfig_parseData* pData = (t_expatAccessor_threadConfig_parseData*)userData;
     printf("[ELEMENT] %s End!\n", name);
     if(strcmp(name, "threadConfig") == 0 ) {
         pData->isParse = 0;
@@ -181,15 +181,15 @@ static void expatAccesser_element_end(void *userData, const XML_Char *name)
             continue;
 
         int threadCount = pData->threadCount;
-        t_expatAccesser_threadConfig_threadData* threadConfig = &pData->threadConfigList[threadCount];
+        t_expatAccessor_threadConfig_threadData* threadConfig = &pData->threadConfigList[threadCount];
 
         if(strcmp(elmData->name, "id") == 0 ) {
-            expatAccesser_element_getElementData(&threadConfig->id, elmData);
+            expatAccessor_element_getElementData(&threadConfig->id, elmData);
         } else if( strcmp(elmData->name, "parentId") == 0){
-            expatAccesser_element_getElementData(&threadConfig->parentId, elmData);
+            expatAccessor_element_getElementData(&threadConfig->parentId, elmData);
         }
 
-        expatAccesser_element_cleanup(elmData);
+        expatAccessor_element_cleanup(elmData);
         break;
     }
 }

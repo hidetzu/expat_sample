@@ -4,9 +4,9 @@
 #include <expat.h>
 #include <common_capi.h>
 
-#include <config_xmlParser.h>
+#include <config.h>
 
-#include "xmlAccessor_core.h"
+#include "./xmlAccessor/xmlAccessor_core.h"
 
 /************************************************/
 /*  Defines                                     */
@@ -23,14 +23,26 @@
 /************************************************/
 /*  PublicFunctions                             */
 /************************************************/
-int config_xmlParser_getThreadConifg(const char* filename, t_threadConfigList* pList)
+int config_initalize(void)
+{
+    return 0;
+}
+
+int config_finalize(void)
+{
+    return 0;
+}
+
+
+
+int config_getThreadConifg(const char* filename, t_threadConfigList* pList)
 {
     fprintf(stdout, "%s  start\n", __func__);
 
     return xmlAccesser_parser(filename ,(void*)pList);
 }
 
-int config_xmlParser_getThreadAction(const char* filename, t_threadActionListInfo* pList)
+int config_getThreadAction(const char* filename, t_threadActionListInfo* pList)
 {
     fprintf(stdout, "%s  start\n", __func__);
     return xmlAccesser_parser(filename ,(void*)pList);

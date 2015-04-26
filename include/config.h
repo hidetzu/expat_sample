@@ -1,5 +1,5 @@
-#ifndef __CONFIG_XMLPARSER_H__
-#define __CONFIG_XMLPARSER_H__
+#ifndef __CONFIG_H__
+#define __CONFIG_H__
 
 /************************************************/
 /*  Defines                                     */
@@ -34,7 +34,9 @@ typedef struct _t_threadActionListInfo {
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-int config_xmlParser_getThreadConifg(const char* filename, t_threadConfigList* pList);
-int config_xmlParser_getThreadAction(const char* filename, t_threadActionListInfo* pList);
+int config_initalize(void);
+int config_finalize(void);
+int config_getThreadConifg(const char* filename, t_threadConfigList* pList);
+int config_getThreadAction(const char* filename, t_threadActionListInfo* pList);
 
-#endif  /*__CONFIG_XMLPARSER_H__*/
+#endif  /*__CONFIG_H__*/
