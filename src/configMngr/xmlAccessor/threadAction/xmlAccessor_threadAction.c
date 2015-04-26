@@ -31,7 +31,7 @@ typedef struct _t_expatAccessor_threadActionListInfo_parseData{
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-static int expatAccesser_initalize(void* pParseData);
+static int xmlAccessor_threadAction_free(void* pData);
 static void expatAccesser_element_start(void *userData, const XML_Char *name, const XML_Char *atts[]);
 static void expatAccesser_element_end(void *userData, const XML_Char *name);
 static void expatAccesser_value_handler( void *userData, const XML_Char *string, int len );
@@ -40,8 +40,8 @@ static int expatAccesser_print(void* pParseData);
 /*  Gloval vars                                 */
 /************************************************/
 static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
-    .init = expatAccesser_initalize,
-    .cleanup = NULL,
+    .copy = xmlAccesser_threadAction_copy,
+    .cleanup = xmlAccessor_threadAction_free,
     .element_start = expatAccesser_element_start,
     .element_end   = expatAccesser_element_end,
     .value_handler = expatAccesser_value_handler,
@@ -69,9 +69,37 @@ void* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatAccessor* pFuncOpera
     pPaseData->currentIdx  = 0;
 
     *pFuncOperation = s_xmlParseFunc;
-    pFuncOperation->init(pPaseData);
 
     return pPaseData;
+}
+
+static int xmlAccessor_threadAction_free(void* pData)
+{
+
+    t_expatAccessor_threadActionListInfo_parseData* pPaseData =
+        (t_expatAccessor_threadActionListInfo_parseData*)pData;
+
+    int threadCount = 0;
+    int threadCountMax = pPaseData->threadCount;
+    for(threadCount = 0; threadCount < threadCountMax; threadCount++) {
+        t_expatAccessor_threadActionList* actionList = &pPaseData->list[threadCount];
+        t_expatAccessor_threadAction* action = actionList->top;
+
+        if( NULL != action && NULL != action->next ) {
+            t_expatAccessor_threadAction* tmp = action->next;
+            while(tmp) {
+                action->next = tmp->next;
+                common_free(tmp);
+                tmp = action->next;
+            }
+        
+        }
+        common_free(action);
+        
+    }
+
+    common_free(pPaseData);
+    return 0;
 }
 
 void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
@@ -104,41 +132,11 @@ void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
         }
 
     }
-
-    threadCount = 0;
-    for(threadCount = 0; threadCount < threadCountMax; threadCount++) {
-        t_expatAccessor_threadActionList* actionList = &pData->list[threadCount];
-        t_expatAccessor_threadAction* action = actionList->top;
-
-        if( NULL != action && NULL != action->next ) {
-            t_expatAccessor_threadAction* tmp = action->next;
-            while(tmp) {
-                action->next = tmp->next;
-                common_free(tmp);
-                tmp = action->next;
-            }
-        
-        }
-        common_free(action);
-        
-    }
-
-    common_free(pData);
 }
 
 /************************************************/
 /*  PrivateFuncitons                            */
 /************************************************/
-static int expatAccesser_initalize(void* pParseData)
-{
-    t_expatAccessor_threadActionListInfo_parseData* pData
-        = (t_expatAccessor_threadActionListInfo_parseData*)pParseData;
-    common_memset(pParseData, 0x00, sizeof(t_expatAccessor_threadActionListInfo_parseData));
-    pData->threadCount=0;
-    pData->isThreadActionParse = 0;
-    return 0;
-}
-
 static int expatAccesser_print(void* pParseData)
 {
     t_expatAccessor_threadActionListInfo_parseData* pData

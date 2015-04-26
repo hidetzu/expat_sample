@@ -24,7 +24,8 @@ typedef struct _t_expatAccessor_threadConfig_parseData{
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-static int expatAccesser_initalize(void* pParseData);
+static void xmlAccesser_threadConfig_copy(void* pToData,  void* pFromData);
+static int xmlAccessor_threadConfig_free(void* pData);
 static void expatAccesser_element_start(void *userData, const XML_Char *name, const XML_Char *atts[]);
 static void expatAccesser_element_end(void *userData, const XML_Char *name);
 static void expatAccesser_value_handler( void *userData, const XML_Char *string, int len );
@@ -34,8 +35,8 @@ static int expatAccesser_print(void* pParseData);
 /*  Gloval vars                                 */
 /************************************************/
 static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
-    .init = expatAccesser_initalize,
-    .cleanup = NULL,
+    .copy  = xmlAccesser_threadConfig_copy,
+    .cleanup = xmlAccessor_threadConfig_free,
     .element_start = expatAccesser_element_start,
     .element_end   = expatAccesser_element_end,
     .value_handler = expatAccesser_value_handler,
@@ -63,12 +64,15 @@ void* xmlAccesser_threadConfig_create(t_xmlAccesseInfo_expatAccessor* pFuncOpera
     common_memset(pParaseData, 0x00, sizeof(t_expatAccessor_threadConfig_parseData));
 
     *pFuncOperation = s_xmlParseFunc;
-    pFuncOperation->init(pParaseData);
 
     return pParaseData;
 }
 
-void xmlAccesser_threadConfig_copy(void* pToData,  void* pFromData)
+/************************************************/
+/*  PrivateFuncitons                            */
+/************************************************/
+
+static void xmlAccesser_threadConfig_copy(void* pToData,  void* pFromData)
 {
     int i = 0;
     t_threadConfigList* pThreadConfigList = (t_threadConfigList*)pToData;
@@ -81,19 +85,11 @@ void xmlAccesser_threadConfig_copy(void* pToData,  void* pFromData)
         pThreadConfigList->list[i].id = pPaseData->threadConfigList[i].id;
         pThreadConfigList->list[i].parentId = pPaseData->threadConfigList[i].parentId;
     }
-
-    common_free(pPaseData);
 }
 
-/************************************************/
-/*  PrivateFuncitons                            */
-/************************************************/
-static int expatAccesser_initalize(void* pParseData)
+static int xmlAccessor_threadConfig_free(void* pData)
 {
-    t_expatAccessor_threadConfig_parseData* pData = (t_expatAccessor_threadConfig_parseData*)pParseData;
-    common_memset(pParseData, 0x00, sizeof(t_expatAccessor_threadConfig_parseData));
-    pData->threadCount=0;
-    pData->isParse = 0;
+    common_free(pData);
     return 0;
 }
 

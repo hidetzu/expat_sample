@@ -16,17 +16,14 @@
 #define BUFSIZE 1024  
 
 typedef void* (*t_xmlAccesseInfo_dataCreate)(t_xmlAccesseInfo_expatAccessor* pFileOperation);
-typedef void  (*t_xmlAccesseInfo_dataCopy)(void* pToData, void* pFromData);
 
 typedef struct _t_xmlAccesseInfo_accessFunc {
-    t_xmlAccesseInfo_dataCopy  copyFunc;
     t_xmlAccesseInfo_expatAccessor expatAccessor;
 }t_xmlAccesseInfo_accessFunc;
 
 typedef struct _t_xmlAccesseInfo_dataOperator {
     const char* filename;
     t_xmlAccesseInfo_dataCreate createFunc;
-    t_xmlAccesseInfo_dataCopy  copyFunc;
 }t_xmlAccesseInfo_dataOperator;
 
 typedef struct _t_xmlAccesseInfo {
@@ -55,13 +52,11 @@ static t_xmlAccesseInfo_dataOperator s_xmlFileInfoTbl[] = {
     { 
         .filename = "inputfile/threadConfig.xml",
         .createFunc = xmlAccesser_threadConfig_create,
-        .copyFunc =  xmlAccesser_threadConfig_copy,
     },
 
     { 
         .filename = "inputfile/threadAction.xml",
         .createFunc = xmlAccesser_threadAction_create,
-        .copyFunc =  xmlAccesser_threadAction_copy,
     },
 
 /* 終端エントリ */
@@ -102,7 +97,7 @@ int xmlAccesser_parser(const char* filename ,void* pResult)
     } while (!isEof);
 
     fprintf(stderr, "done.\n");
-    accessInfo->accessFunc.copyFunc((void*)pResult, accessInfo->parseData);
+    accessInfo->accessFunc.expatAccessor.copy((void*)pResult, accessInfo->parseData);
     deleteAccessInfo(accessInfo);
 
     return 0;
@@ -128,7 +123,6 @@ static t_xmlAccesseInfo* createAccessInfo(const char* filename)
             continue;
 
         inst->parseData = s_xmlFileInfoTbl[idx].createFunc(&inst->accessFunc.expatAccessor);
-        inst->accessFunc.copyFunc = s_xmlFileInfoTbl[idx].copyFunc;
         break;
     }
 
@@ -153,8 +147,13 @@ static t_xmlAccesseInfo* createAccessInfo(const char* filename)
 
 static void deleteAccessInfo(t_xmlAccesseInfo* pThis)
 {
+
     XML_ParserFree(pThis->parser);
     common_fclose(pThis->fp);
+
+    if(pThis->accessFunc.expatAccessor.cleanup)
+        pThis->accessFunc.expatAccessor.cleanup(pThis->parseData);
+
     common_free(pThis);
 }
 

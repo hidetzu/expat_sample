@@ -11,6 +11,5 @@
 /*  Prototypes                                  */
 /************************************************/
 void* xmlAccesser_threadConfig_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation);
-void xmlAccesser_threadConfig_copy(void* pToData,  void* pFromData);
 
 #endif  /*__XMLACCESSER_THREADCONFIG_H__*/

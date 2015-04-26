@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-#include <expat.h>
 #include <common_capi.h>
 
 #include <config.h>
