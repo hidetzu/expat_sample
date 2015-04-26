@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <common_capi.h>
 
-#include "xmlAccesser_threadConfig.h"
+#include "xmlAccessor_threadConfig.h"
 #include "../expatAccesser/expatAccesser_element.h"
 #include "../expatAccesser/expatAccesser_common.h"
 
@@ -33,7 +33,7 @@ static int expatAccesser_print(void* pParseData);
 /************************************************/
 /*  Gloval vars                                 */
 /************************************************/
-static const t_configMngr_xmlParserFunc s_xmlParseFunc = {
+static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
     .init = expatAccesser_initalize,
     .cleanup = NULL,
     .element_start = expatAccesser_element_start,
@@ -56,7 +56,7 @@ static const t_elementType s_config_elementTypeTbl[] = {
 /************************************************/
 /*  PublicFunctions                             */
 /************************************************/
-void* xmlAccesser_threadConfig_create(t_configMngr_xmlParserFunc* pFuncOperation)
+void* xmlAccesser_threadConfig_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation)
 {
     t_expatAccesser_threadConfig_parseData* pParaseData =
         (t_expatAccesser_threadConfig_parseData*)common_malloc(sizeof(t_expatAccesser_threadConfig_parseData));

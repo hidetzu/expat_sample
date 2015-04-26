@@ -6,7 +6,7 @@
 
 #include <config_xmlParser.h>
 
-#include "xmlAccesser_core.h"
+#include "xmlAccessor_core.h"
 
 /************************************************/
 /*  Defines                                     */

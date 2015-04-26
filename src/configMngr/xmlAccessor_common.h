@@ -12,13 +12,13 @@ typedef void (*t_xmlAccesser_element_start)(void *userData, const XML_Char *name
 typedef void (*t_xmlAccesser_element_end)(void *userData, const XML_Char *name);
 typedef void (*t_xmlAccesser_value_handler)( void *userData, const XML_Char *string, int len );
 
-typedef struct _t_configMngr_xmlParserFunc {
+typedef struct _t_xmlAccesseInfo_expatAccessor{
     t_xmlAccesser_initalize init;
     t_xmlAccesser_finalize  cleanup;
     t_xmlAccesser_element_start element_start;
     t_xmlAccesser_element_end element_end;
     t_xmlAccesser_value_handler value_handler;
-}t_configMngr_xmlParserFunc;
+}t_xmlAccesseInfo_expatAccessor;
 
 /************************************************/
 /*  Prototypes                                  */

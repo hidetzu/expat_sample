@@ -4,45 +4,45 @@
 #include <expat.h>
 #include <common_capi.h>
 
-#include "xmlAccesser_core.h"
+#include "xmlAccessor_core.h"
 
-#include "xmlAccesser_common.h"
-#include "./threadConfig/xmlAccesser_threadConfig.h"
-#include "./threadAction/xmlAccesser_threadAction.h"
+#include "xmlAccessor_common.h"
+#include "./threadConfig/xmlAccessor_threadConfig.h"
+#include "./threadAction/xmlAccessor_threadAction.h"
 
 /************************************************/
 /*  Defines                                     */
 /************************************************/
 #define BUFSIZE 1024  
 
-typedef void* (*t_xmlPaseData_create)(t_configMngr_xmlParserFunc* pFileOperation);
-typedef void  (*t_xmlPaserData_copy)(void* pToData, void* pFromData);
+typedef void* (*t_xmlAccesseInfo_dataCreate)(t_xmlAccesseInfo_expatAccessor* pFileOperation);
+typedef void  (*t_xmlAccesseInfo_dataCopy)(void* pToData, void* pFromData);
 
-typedef struct _t_config_parseDataFunc {
-    t_xmlPaserData_copy  copyFunc;
-    t_configMngr_xmlParserFunc parseFunc;
-}t_config_parseDataFunc;
+typedef struct _t_xmlAccesseInfo_accessFunc {
+    t_xmlAccesseInfo_dataCopy  copyFunc;
+    t_xmlAccesseInfo_expatAccessor expatAccessor;
+}t_xmlAccesseInfo_accessFunc;
 
-typedef struct _t_config_xmlFileInfo {
+typedef struct _t_xmlAccesseInfo_dataOperator {
     const char* filename;
-    t_xmlPaseData_create createFunc;
-    t_xmlPaserData_copy  copyFunc;
-}t_config_xmlFileInfo;
+    t_xmlAccesseInfo_dataCreate createFunc;
+    t_xmlAccesseInfo_dataCopy  copyFunc;
+}t_xmlAccesseInfo_dataOperator;
 
-typedef struct _t_configMngr_xmlAccesseInfo {
+typedef struct _t_xmlAccesseInfo {
     const char* filename;
     FILE* fp;
     XML_Parser parser;
     void* parseData;
 
-    t_config_parseDataFunc parseDataFunc;
-}t_configMngr_xmlAccesseInfo;
+    t_xmlAccesseInfo_accessFunc accessFunc;
+}t_xmlAccesseInfo;
 
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-static t_configMngr_xmlAccesseInfo* createAccessInfo(const char* filename);
-static void deleteAccessInfo(t_configMngr_xmlAccesseInfo* pThis);
+static t_xmlAccesseInfo* createAccessInfo(const char* filename);
+static void deleteAccessInfo(t_xmlAccesseInfo* pThis);
 
 static void element_start(void *userData, const XML_Char *name, const XML_Char *atts[]);
 static void element_end(void *userData, const XML_Char *name);
@@ -51,7 +51,7 @@ static void value_handler( void *userData, const XML_Char *string, int len );
 /************************************************/
 /*  Gloval vars                                 */
 /************************************************/
-static t_config_xmlFileInfo s_xmlFileInfoTbl[] = {
+static t_xmlAccesseInfo_dataOperator s_xmlFileInfoTbl[] = {
     { 
         .filename = "inputfile/threadConfig.xml",
         .createFunc = xmlAccesser_threadConfig_create,
@@ -76,7 +76,7 @@ static t_config_xmlFileInfo s_xmlFileInfoTbl[] = {
 /************************************************/
 int xmlAccesser_parser(const char* filename ,void* pResult)
 {
-    t_configMngr_xmlAccesseInfo* accessInfo = createAccessInfo(filename);
+    t_xmlAccesseInfo* accessInfo = createAccessInfo(filename);
     if( NULL == accessInfo ) {
         fprintf(stderr, "accessInfo create errro\n");
         return (-1);
@@ -102,7 +102,7 @@ int xmlAccesser_parser(const char* filename ,void* pResult)
     } while (!isEof);
 
     fprintf(stderr, "done.\n");
-    accessInfo->parseDataFunc.copyFunc((void*)pResult, accessInfo->parseData);
+    accessInfo->accessFunc.copyFunc((void*)pResult, accessInfo->parseData);
     deleteAccessInfo(accessInfo);
 
     return 0;
@@ -112,9 +112,9 @@ int xmlAccesser_parser(const char* filename ,void* pResult)
 /************************************************/
 /*  PrivateFunctions                            */
 /************************************************/
-static t_configMngr_xmlAccesseInfo* createAccessInfo(const char* filename)
+static t_xmlAccesseInfo* createAccessInfo(const char* filename)
 {
-    t_configMngr_xmlAccesseInfo* inst = (t_configMngr_xmlAccesseInfo*)common_malloc(sizeof(t_configMngr_xmlAccesseInfo));
+    t_xmlAccesseInfo* inst = (t_xmlAccesseInfo*)common_malloc(sizeof(t_xmlAccesseInfo));
     inst->filename = filename;
     inst->fp = NULL;
     inst->parser = NULL;
@@ -127,8 +127,8 @@ static t_configMngr_xmlAccesseInfo* createAccessInfo(const char* filename)
         if(common_strcmp(filename, s_xmlFileInfoTbl[idx].filename ) != 0 )
             continue;
 
-        inst->parseData = s_xmlFileInfoTbl[idx].createFunc(&inst->parseDataFunc.parseFunc);
-        inst->parseDataFunc.copyFunc = s_xmlFileInfoTbl[idx].copyFunc;
+        inst->parseData = s_xmlFileInfoTbl[idx].createFunc(&inst->accessFunc.expatAccessor);
+        inst->accessFunc.copyFunc = s_xmlFileInfoTbl[idx].copyFunc;
         break;
     }
 
@@ -151,7 +151,7 @@ static t_configMngr_xmlAccesseInfo* createAccessInfo(const char* filename)
     return inst;
 }
 
-static void deleteAccessInfo(t_configMngr_xmlAccesseInfo* pThis)
+static void deleteAccessInfo(t_xmlAccesseInfo* pThis)
 {
     XML_ParserFree(pThis->parser);
     common_fclose(pThis->fp);
@@ -160,21 +160,21 @@ static void deleteAccessInfo(t_configMngr_xmlAccesseInfo* pThis)
 
 static void value_handler( void *userData, const XML_Char *string, int len )
 {
-    t_configMngr_xmlAccesseInfo* accessInfo = (t_configMngr_xmlAccesseInfo*)userData;
-    t_configMngr_xmlParserFunc* parseFunc = &accessInfo->parseDataFunc.parseFunc;
+    t_xmlAccesseInfo* accessInfo = (t_xmlAccesseInfo*)userData;
+    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->accessFunc.expatAccessor;
     parseFunc->value_handler(accessInfo->parseData, string, len);
 }
 
 static void element_start(void *userData, const XML_Char *name, const XML_Char *atts[])
 {
-    t_configMngr_xmlAccesseInfo* accessInfo = (t_configMngr_xmlAccesseInfo*)userData;
-    t_configMngr_xmlParserFunc* parseFunc = &accessInfo->parseDataFunc.parseFunc;
+    t_xmlAccesseInfo* accessInfo = (t_xmlAccesseInfo*)userData;
+    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->accessFunc.expatAccessor;
     parseFunc->element_start(accessInfo->parseData, name, atts);
 }
 
 static void element_end(void *userData, const XML_Char *name)
 {
-    t_configMngr_xmlAccesseInfo* accessInfo = (t_configMngr_xmlAccesseInfo*)userData;
-    t_configMngr_xmlParserFunc* parseFunc = &accessInfo->parseDataFunc.parseFunc;
+    t_xmlAccesseInfo* accessInfo = (t_xmlAccesseInfo*)userData;
+    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->accessFunc.expatAccessor;
     parseFunc->element_end(accessInfo->parseData, name);
 }

@@ -1,6 +1,6 @@
 #include <common_capi.h>
 
-#include "xmlAccesser_threadAction.h"
+#include "xmlAccessor_threadAction.h"
 #include "../expatAccesser/expatAccesser_element.h"
 #include "../expatAccesser/expatAccesser_common.h"
 
@@ -38,7 +38,7 @@ static int expatAccesser_print(void* pParseData);
 /************************************************/
 /*  Gloval vars                                 */
 /************************************************/
-static const t_configMngr_xmlParserFunc s_xmlParseFunc = {
+static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
     .init = expatAccesser_initalize,
     .cleanup = NULL,
     .element_start = expatAccesser_element_start,
@@ -56,7 +56,7 @@ static const t_elementType s_config_elementTypeTbl[] = {
 /************************************************/
 /*  PublicFunctions                             */
 /************************************************/
-void* xmlAccesser_threadAction_create(t_configMngr_xmlParserFunc* pFuncOperation)
+void* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation)
 {
     printf("%s start\n", __func__);
 
