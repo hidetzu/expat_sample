@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <threadActionListConfig>
+	<!-- test -->
 	<threadActionList threadID="0">
 		<threadAction>
 			<executeFunc>testFunc1</executeFunc>

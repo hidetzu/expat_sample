@@ -47,7 +47,7 @@ static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
     .value_handler = expatAccesser_value_handler,
 };
 
-static const t_elementType s_config_elementTypeTbl[] = {
+static const t_elementType s_elementTypeTbl[] = {
     { "executeFunc", ELEMENTDATA_TYPE_STRING},
 
 /*終端エントリ */
@@ -170,9 +170,9 @@ static void expatAccesser_value_handler( void *userData, const XML_Char *string,
         return;
 
     int idx = 0;
-    for( idx = 0; s_config_elementTypeTbl[idx].type != ELEMENTDATA_TYPE_INVALID; idx++) {
+    for( idx = 0; s_elementTypeTbl[idx].type != ELEMENTDATA_TYPE_INVALID; idx++) {
         t_elementData* elemData = &pData->elementData;
-        if(common_strcmp(elemData->name, s_config_elementTypeTbl[idx].name ) != 0 )
+        if(common_strcmp(elemData->name, s_elementTypeTbl[idx].name ) != 0 )
             continue;
 
         char buf[ELEMENT_BUF_SIZE];
@@ -225,12 +225,12 @@ static void expatAccesser_element_start(void *userData, const XML_Char *name, co
         return;
 
     int idx = 0;
-    for( idx = 0; s_config_elementTypeTbl[idx].type != ELEMENTDATA_TYPE_INVALID; idx++) {
-        if(common_strcmp(name, s_config_elementTypeTbl[idx].name ) != 0 )
+    for( idx = 0; s_elementTypeTbl[idx].type != ELEMENTDATA_TYPE_INVALID; idx++) {
+        if(common_strcmp(name, s_elementTypeTbl[idx].name ) != 0 )
             continue;
 
         t_elementData* elmData = &pData->elementData;
-        expatAccessor_element_initalize((char*)name, s_config_elementTypeTbl[idx].type,elmData);
+        expatAccessor_element_initalize((char*)name, s_elementTypeTbl[idx].type,elmData);
         break;
     }
 }
@@ -252,9 +252,9 @@ static void expatAccesser_element_end(void *userData, const XML_Char *name)
     }
 
     int idx = 0;
-    for( idx = 0; s_config_elementTypeTbl[idx].type != ELEMENTDATA_TYPE_INVALID; idx++) {
+    for( idx = 0; s_elementTypeTbl[idx].type != ELEMENTDATA_TYPE_INVALID; idx++) {
         t_elementData* elmData = &pData->elementData;
-        if(common_strcmp(elmData->name, s_config_elementTypeTbl[idx].name ) != 0 )
+        if(common_strcmp(elmData->name, s_elementTypeTbl[idx].name ) != 0 )
             continue;
 
         t_expatAccessor_threadActionList* actionList = &pData->list[pData->currentIdx];
