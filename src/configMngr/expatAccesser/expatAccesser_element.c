@@ -39,8 +39,7 @@ const static t_elementDataFunc s_config_elementDataTbl[] = {
 /************************************************/
 /*  PublicFunctions                             */
 /************************************************/
-
-int expatAccesser_initalize(char* name, e_elementDataType type, t_elementData* elmData)
+int expatAccesser_element_initalize(char* name, e_elementDataType type, t_elementData* elmData)
 {
     common_memset(elmData->name, 0x00, ELEMENT_BUF_SIZE);
     common_memcpy(elmData->name, name, common_strlen(name));
@@ -50,19 +49,19 @@ int expatAccesser_initalize(char* name, e_elementDataType type, t_elementData* e
     return 0;
 }
 
-void expatAccesser_cleanup(t_elementData* elmData)
+void expatAccesser_element_cleanup(t_elementData* elmData)
 {
     common_memset(elmData->name, 0x00, ELEMENT_BUF_SIZE);
     elmData->name[0]='\0';
 }
 
-int expatAccesser_setElementData(char* buf, t_elementData* elmData)
+int expatAccesser_element_setElementData(char* buf, t_elementData* elmData)
 {
     s_config_elementDataTbl[elmData->type].setFunc(buf, elmData);
     return 0;
 }
 
-int expatAccesser_getElementData(void* buf, t_elementData* elmData)
+int expatAccesser_element_getElementData(void* buf, t_elementData* elmData)
 {
     s_config_elementDataTbl[elmData->type].getFunc(buf, elmData);
     return 0;

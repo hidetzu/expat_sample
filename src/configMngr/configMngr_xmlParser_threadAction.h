@@ -11,7 +11,7 @@
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-void* configMngr_xmlParser_threadConfig_create(t_configMngr_xmlParserFunc* pFuncOperation);
+void* configMngr_xmlParser_threadAction_create(t_configMngr_xmlParserFunc* pFuncOperation);
 void configMngr_xmlParser_threadAction_copy(void* pToData,  void* pFromData);
 
 #endif  /*__CONFIGMNGR_XMLPARSER_THREADACTION_H__*/

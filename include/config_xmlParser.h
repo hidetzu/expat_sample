@@ -15,13 +15,14 @@ typedef struct _t_threadConfigList {
 }t_threadConfigList;
 
 typedef struct _t_threadAction {
+    int id;
     char name[256];
-    struct _t_threadAction* next;
 }t_threadAction;
 
 typedef struct _t_threadActionList {
     int threadId;
-    t_threadAction* top;
+    int arrayCount;
+    t_threadAction* array;
 }t_threadActionList;
 
 typedef struct _t_threadActionListInfo {

@@ -8,6 +8,7 @@
 
 #include "configMngr_xmlParser_common.h"
 #include "configMngr_xmlParser_threadConfig.h"
+#include "configMngr_xmlParser_threadAction.h"
 
 /************************************************/
 /*  Defines                                     */
@@ -40,6 +41,8 @@ typedef struct _t_configMngr_xmlPasrserAccesseInfo {
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
+static int config_xmlParser_parser(const char* filename ,void* pResult);
+
 static t_configMngr_xmlPasrserAccesseInfo* createAccessInfo(const char* filename);
 static void deleteAccessInfo(t_configMngr_xmlPasrserAccesseInfo* pThis);
 
@@ -57,6 +60,12 @@ static t_config_xmlFileInfo s_xmlFileInfoTbl[] = {
         .copyFunc =  configMngr_xmlParser_threadConfig_copy,
     },
 
+    { 
+        .filename = "inputfile/threadAction.xml",
+        .createFunc = (void*)configMngr_xmlParser_threadAction_create,
+        .copyFunc =  configMngr_xmlParser_threadAction_copy,
+    },
+
 /* 終端エントリ */
     { 
         .filename = "",
@@ -68,6 +77,21 @@ static t_config_xmlFileInfo s_xmlFileInfoTbl[] = {
 /*  PublicFunctions                             */
 /************************************************/
 int config_xmlParser_getThreadConifg(const char* filename, t_threadConfigList* pList)
+{
+    fprintf(stdout, "%s  start\n", __func__);
+    return config_xmlParser_parser(filename, (void*)pList);
+}
+
+int config_xmlParser_getThreadAction(const char* filename, t_threadActionListInfo* pList)
+{
+    fprintf(stdout, "%s  start\n", __func__);
+    return config_xmlParser_parser(filename, (void*)pList);
+}
+
+/************************************************/
+/*  PrivateFunctions                            */
+/************************************************/
+static int config_xmlParser_parser(const char* filename ,void* pResult)
 {
     t_configMngr_xmlPasrserAccesseInfo* accessInfo = createAccessInfo(filename);
     if( NULL == accessInfo ) {
@@ -95,20 +119,12 @@ int config_xmlParser_getThreadConifg(const char* filename, t_threadConfigList* p
     } while (!isEof);
 
     fprintf(stderr, "done.\n");
-    accessInfo->parseDataFunc.copyFunc((void*)pList, accessInfo->parseData);
+    accessInfo->parseDataFunc.copyFunc((void*)pResult, accessInfo->parseData);
     deleteAccessInfo(accessInfo);
 
     return 0;
 }
 
-int config_xmlParser_getThreadAction(const char* filename, t_threadActionListInfo* pList)
-{
-    return 0;
-}
-
-/************************************************/
-/*  PublicFunctions                             */
-/************************************************/
 static t_configMngr_xmlPasrserAccesseInfo* createAccessInfo(const char* filename)
 {
     t_configMngr_xmlPasrserAccesseInfo* inst = (t_configMngr_xmlPasrserAccesseInfo*)common_malloc(sizeof(t_configMngr_xmlPasrserAccesseInfo));
