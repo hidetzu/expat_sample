@@ -15,6 +15,12 @@ typedef enum _e_elementDataType {
     ELEMENTDATA_TYPE_INVALID = -1,
 }e_elementDataType;
 
+typedef struct _t_elementType {
+    const char*       name;
+    e_elementDataType type;
+}t_elementType; 
+
+
 typedef struct _t_elementData {
     char name[ELEMENT_BUF_SIZE];
     e_elementDataType type;

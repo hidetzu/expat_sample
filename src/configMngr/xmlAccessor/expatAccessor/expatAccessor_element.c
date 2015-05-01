@@ -39,6 +39,9 @@ const static t_elementDataFunc s_config_elementDataTbl[] = {
 /************************************************/
 int expatAccessor_element_initalize(char* name, e_elementDataType type, t_elementData* elmData)
 {
+    if(strlen(name)+1 > ELEMENT_BUF_SIZE )
+        return -1;
+
     common_memset(elmData->name, 0x00, ELEMENT_BUF_SIZE);
     common_memcpy(elmData->name, name, common_strlen(name));
     elmData->name[common_strlen(name)]='\0';

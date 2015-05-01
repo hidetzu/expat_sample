@@ -3,7 +3,6 @@
 
 #include "xmlAccessor_threadAction.h"
 #include "../expatAccessor/expatAccessor_element.h"
-#include "../expatAccessor/expatAccessor_common.h"
 
 /************************************************/
 /*  Defines                                     */
@@ -21,6 +20,7 @@ typedef struct _t_expatAccessor_threadActionList {
 }t_expatAccessor_threadActionList;
 
 typedef struct _t_expatAccessor_threadActionListInfo_parseData{
+    t_xmlAccessor_parseData base;
     int threadCount;
     int currentIdx;
     t_expatAccessor_threadActionList list[10];
@@ -32,6 +32,7 @@ typedef struct _t_expatAccessor_threadActionListInfo_parseData{
 /*  Prototypes                                  */
 /************************************************/
 static int xmlAccessor_threadAction_free(void* pData);
+static int xmlAccesser_threadAction_copy(void* pToData,  void* pFromData);
 static void expatAccesser_element_start(void *userData, const XML_Char *name, const XML_Char *atts[]);
 static void expatAccesser_element_end(void *userData, const XML_Char *name);
 static void expatAccesser_value_handler( void *userData, const XML_Char *string, int len );
@@ -47,17 +48,10 @@ static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
     .value_handler = expatAccesser_value_handler,
 };
 
-static const t_elementType s_elementTypeTbl[] = {
-    { "executeFunc", ELEMENTDATA_TYPE_STRING},
-
-/*終端エントリ */
-    { "",           ELEMENTDATA_TYPE_INVALID},
-};
-
 /************************************************/
 /*  PublicFunctions                             */
 /************************************************/
-void* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation)
+t_xmlAccessor_parseData* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation)
 {
     printf("%s start\n", __func__);
 
@@ -70,7 +64,7 @@ void* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatAccessor* pFuncOpera
 
     *pFuncOperation = s_xmlParseFunc;
 
-    return pPaseData;
+    return (t_xmlAccessor_parseData*)pPaseData;
 }
 
 static int xmlAccessor_threadAction_free(void* pData)
@@ -102,7 +96,7 @@ static int xmlAccessor_threadAction_free(void* pData)
     return 0;
 }
 
-void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
+static int xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
 {
     t_expatAccessor_threadActionListInfo_parseData* pData
         = (t_expatAccessor_threadActionListInfo_parseData*)pFromData;
@@ -132,6 +126,8 @@ void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
         }
 
     }
+
+    return 0;
 }
 
 /************************************************/
@@ -167,22 +163,14 @@ static void expatAccesser_value_handler( void *userData, const XML_Char *string,
     if(!pData->isThreadActionParse)
         return;
 
-    int idx = 0;
-    for( idx = 0; s_elementTypeTbl[idx].type != ELEMENTDATA_TYPE_INVALID; idx++) {
-        t_elementData* elemData = &pData->elementData;
-        if(common_strcmp(elemData->name, s_elementTypeTbl[idx].name ) != 0 )
-            continue;
-
+    t_elementData* elmData = &pData->elementData;
+    if (strcmp(elmData->name, "executeFunc") == 0 ) {
         char buf[ELEMENT_BUF_SIZE];
         common_memset( buf, 0x00, len );
         common_memcpy( buf, string, len );
         buf[len] = '\0';
 
-        printf("elemData->type=%d\n", elemData->type);
-        printf("elementName=%s len=%d data=%s\n", elemData->name, len, buf );
-        
-        expatAccessor_element_setElementData(buf, elemData);
-        break;
+        expatAccessor_element_setElementData(buf, elmData);
     }
 }
 
@@ -208,12 +196,11 @@ static void expatAccesser_element_start(void *userData, const XML_Char *name, co
         (t_expatAccessor_threadAction*)common_malloc(sizeof(t_expatAccessor_threadAction));
         if(!actionList->top) {
             actionList->top = actionList->tail = newAction;
-            newAction->next = NULL;
         } else {
             actionList->tail->next = newAction;
             actionList->tail = newAction;
-            newAction->next = NULL;
         }
+        newAction->next = NULL;
         actionList->arrayCount++;
         pData->isThreadActionParse = 1;
         return;
@@ -221,15 +208,9 @@ static void expatAccesser_element_start(void *userData, const XML_Char *name, co
 
     if(!pData->isThreadActionParse)
         return;
-
-    int idx = 0;
-    for( idx = 0; s_elementTypeTbl[idx].type != ELEMENTDATA_TYPE_INVALID; idx++) {
-        if(common_strcmp(name, s_elementTypeTbl[idx].name ) != 0 )
-            continue;
-
+    if (strcmp(name, "executeFunc") == 0 ) {
         t_elementData* elmData = &pData->elementData;
-        expatAccessor_element_initalize((char*)name, s_elementTypeTbl[idx].type,elmData);
-        break;
+        expatAccessor_element_initalize((char*)name, ELEMENTDATA_TYPE_STRING,elmData);
     }
 }
 
@@ -238,29 +219,19 @@ static void expatAccesser_element_end(void *userData, const XML_Char *name)
     t_expatAccessor_threadActionListInfo_parseData* pData =
         (t_expatAccessor_threadActionListInfo_parseData*)userData;
     printf("[ELEMENT] %s End!\n", name);
+
     if(strcmp(name, "threadActionList") == 0 ) {
         pData->threadCount++;
         pData->currentIdx++;
         return;
-    }
-
-    if(strcmp(name, "threadAction") == 0 ) {
+    } else  if(strcmp(name, "threadAction") == 0 ) {
         pData->isThreadActionParse = 0;
         return;
-    }
-
-    int idx = 0;
-    for( idx = 0; s_elementTypeTbl[idx].type != ELEMENTDATA_TYPE_INVALID; idx++) {
+    } else if (strcmp(name, "executeFunc") == 0 ) {
         t_elementData* elmData = &pData->elementData;
-        if(common_strcmp(elmData->name, s_elementTypeTbl[idx].name ) != 0 )
-            continue;
-
         t_expatAccessor_threadActionList* actionList = &pData->list[pData->currentIdx];
         t_expatAccessor_threadAction* action = actionList->tail;
-
         expatAccessor_element_getElementData(action->funcName, elmData);
-
         expatAccessor_element_cleanup(elmData);
-        break;
     }
 }

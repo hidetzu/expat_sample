@@ -1,5 +1,7 @@
 #include <config.h>
 #include <common_capi.h>
+#include <dlfcn.h>
+#include <sched.h>
 
 void print_threadConfig(void);
 void print_threadAction(void);
@@ -23,6 +25,9 @@ void print_threadAction(void)
 {
     t_threadActionListInfo  actionListInfo;
     common_memset(&actionListInfo, 0x00, sizeof(t_threadActionListInfo));
+
+    void* handle = dlopen(NULL, RTLD_LAZY);
+
     config_getThreadAction("inputfile/threadAction.xml", &actionListInfo);
 
 
@@ -35,6 +40,7 @@ void print_threadAction(void)
         for( arrayIdx = 0; arrayIdx < actionList->arrayCount; arrayIdx++) {
             t_threadAction* action = &actionList->array[arrayIdx];
             fprintf(stdout, "name=%s\n", action->name);
+            fprintf(stdout, "%p\n", dlsym(handle, action->name)); 
         }
     }
 
@@ -43,6 +49,8 @@ void print_threadAction(void)
         t_threadActionList* actionList = &actionListInfo.list[threadCount];
         common_free(actionList->array);
     }
+
+    dlclose(handle);
 }
 
 

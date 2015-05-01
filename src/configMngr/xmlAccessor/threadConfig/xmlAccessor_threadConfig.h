@@ -10,6 +10,6 @@
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-void* xmlAccesser_threadConfig_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation);
+t_xmlAccessor_parseData* xmlAccesser_threadConfig_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation);
 
 #endif  /*__XMLACCESSER_THREADCONFIG_H__*/

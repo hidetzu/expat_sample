@@ -15,11 +15,7 @@
 /************************************************/
 #define BUFSIZE 1024  
 
-typedef void* (*t_xmlAccesseInfo_dataCreate)(t_xmlAccesseInfo_expatAccessor* pFileOperation);
-
-typedef struct _t_xmlAccesseInfo_accessFunc {
-    t_xmlAccesseInfo_expatAccessor expatAccessor;
-}t_xmlAccesseInfo_accessFunc;
+typedef t_xmlAccessor_parseData* (*t_xmlAccesseInfo_dataCreate)(t_xmlAccesseInfo_expatAccessor* pFileOperation);
 
 typedef struct _t_xmlAccesseInfo_dataOperator {
     const char* filename;
@@ -30,9 +26,9 @@ typedef struct _t_xmlAccesseInfo {
     const char* filename;
     FILE* fp;
     XML_Parser parser;
-    void* parseData;
+    t_xmlAccessor_parseData* parseData;
 
-    t_xmlAccesseInfo_accessFunc accessFunc;
+    t_xmlAccesseInfo_expatAccessor expatAccessor;
 }t_xmlAccesseInfo;
 
 /************************************************/
@@ -97,7 +93,10 @@ int xmlAccesser_parser(const char* filename ,void* pResult)
     } while (!isEof);
 
     fprintf(stderr, "done.\n");
-    accessInfo->accessFunc.expatAccessor.copy((void*)pResult, accessInfo->parseData);
+    int ret = 0;
+    
+    if( accessInfo->expatAccessor.copy)
+        ret = accessInfo->expatAccessor.copy((void*)pResult, accessInfo->parseData);
     deleteAccessInfo(accessInfo);
 
     return 0;
@@ -122,7 +121,7 @@ static t_xmlAccesseInfo* createAccessInfo(const char* filename)
         if(common_strcmp(filename, s_xmlFileInfoTbl[idx].filename ) != 0 )
             continue;
 
-        inst->parseData = s_xmlFileInfoTbl[idx].createFunc(&inst->accessFunc.expatAccessor);
+        inst->parseData = s_xmlFileInfoTbl[idx].createFunc(&inst->expatAccessor);
         break;
     }
 
@@ -151,8 +150,8 @@ static void deleteAccessInfo(t_xmlAccesseInfo* pThis)
     XML_ParserFree(pThis->parser);
     common_fclose(pThis->fp);
 
-    if(pThis->accessFunc.expatAccessor.cleanup)
-        pThis->accessFunc.expatAccessor.cleanup(pThis->parseData);
+    if(pThis->expatAccessor.cleanup)
+        pThis->expatAccessor.cleanup(pThis->parseData);
 
     common_free(pThis);
 }
@@ -160,20 +159,26 @@ static void deleteAccessInfo(t_xmlAccesseInfo* pThis)
 static void value_handler( void *userData, const XML_Char *string, int len )
 {
     t_xmlAccesseInfo* accessInfo = (t_xmlAccesseInfo*)userData;
-    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->accessFunc.expatAccessor;
+    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->expatAccessor;
+
     parseFunc->value_handler(accessInfo->parseData, string, len);
 }
 
 static void element_start(void *userData, const XML_Char *name, const XML_Char *atts[])
 {
     t_xmlAccesseInfo* accessInfo = (t_xmlAccesseInfo*)userData;
-    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->accessFunc.expatAccessor;
+    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->expatAccessor;
+    if(accessInfo->parseData->isError)
+        return;
+
     parseFunc->element_start(accessInfo->parseData, name, atts);
 }
 
 static void element_end(void *userData, const XML_Char *name)
 {
     t_xmlAccesseInfo* accessInfo = (t_xmlAccesseInfo*)userData;
-    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->accessFunc.expatAccessor;
+    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->expatAccessor;
+    if(accessInfo->parseData->isError)
+        return;
     parseFunc->element_end(accessInfo->parseData, name);
 }

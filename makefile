@@ -10,20 +10,15 @@ RM     = rm -rf
 #------------------
 
 USE_DEBUG=yes
-USE_MYOS=no
 
 TARGET=expat_sample
 
 INCLUDES  = -I./include
 CFLAGS    = -Wall
-LDFLAGS   = -lpthread -lexpat
+LDFLAGS   = -lpthread -lexpat -ldl -Xlinker --export-dynamic
 
 ifeq ($(USE_DEBUG), yes)
 CFLAGS += -g
-endif
-
-ifeq ($(USE_MYOS), yes)
-CFLAGS += -DMYOS
 endif
 
 

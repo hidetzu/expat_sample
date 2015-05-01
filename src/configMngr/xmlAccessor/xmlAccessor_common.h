@@ -6,7 +6,12 @@
 /************************************************/
 /*  Defines                                     */
 /************************************************/
-typedef void  (*t_xmlAccesseor_dataCopy)(void* pToData, void* pFromData);
+typedef struct _t_xmlAccessor_parseData {
+    int isError;
+}t_xmlAccessor_parseData;
+
+
+typedef int  (*t_xmlAccesseor_dataCopy)(void* pToData, void* pFromData);
 typedef int (*t_xmlAccessor_finalize)(void* pData);
 typedef void (*t_xmlAccessor_element_start)(void *userData, const XML_Char *name, const XML_Char *atts[]);
 typedef void (*t_xmlAccessor_element_end)(void *userData, const XML_Char *name);

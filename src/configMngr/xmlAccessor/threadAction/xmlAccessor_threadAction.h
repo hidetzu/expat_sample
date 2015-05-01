@@ -9,7 +9,6 @@
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-void* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation);
-void xmlAccesser_threadAction_copy(void* pToData,  void* pFromData);
+t_xmlAccessor_parseData* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation);
 
 #endif  /*__XMLACCESSER_THREADACTION_H__*/
