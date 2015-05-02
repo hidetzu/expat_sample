@@ -1,5 +1,5 @@
-#ifndef __XMLACCESSER_COMMON_H__
-#define __XMLACCESSER_COMMON_H__
+#ifndef __XMLACCESSOR_COMMON_H__
+#define __XMLACCESSOR_COMMON_H__
 
 #include <expat.h>
 
@@ -11,7 +11,7 @@ typedef struct _t_xmlAccessor_parseData {
 }t_xmlAccessor_parseData;
 
 
-typedef int  (*t_xmlAccesseor_dataCopy)(void* pToData, void* pFromData);
+typedef int  (*t_xmlAccesseor_dataCopy)(void* pToData, t_xmlAccessor_parseData* pFromData);
 typedef int (*t_xmlAccessor_finalize)(void* pData);
 typedef void (*t_xmlAccessor_element_start)(void *userData, const XML_Char *name, const XML_Char *atts[]);
 typedef void (*t_xmlAccessor_element_end)(void *userData, const XML_Char *name);
@@ -28,5 +28,6 @@ typedef struct _t_xmlAccesseInfo_expatAccessor{
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
+const char* xmlAccessor_common_findAttributeValue(const XML_Char *atts[], const char* attributeName);
 
-#endif  /*__XMLACCESSER_COMMON_H__*/
+#endif  /*__XMLACCESSOR_COMMON_H__*/

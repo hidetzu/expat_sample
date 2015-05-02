@@ -11,7 +11,7 @@ typedef struct _t_threadConfig {
 
 typedef struct _t_threadConfigList {
     int threadCount;
-    t_threadConfig  list[10];
+    t_threadConfig*  list;
 }t_threadConfigList;
 
 typedef struct _t_threadAction {

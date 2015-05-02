@@ -94,11 +94,17 @@ int xmlAccesser_parser(const char* filename ,void* pResult)
 
     fprintf(stderr, "done.\n");
     int ret = 0;
-    
+
+    if(accessInfo->parseData->isError) {
+        ret = -1;
+        goto TERMINAL;
+    }
+
     if( accessInfo->expatAccessor.copy)
         ret = accessInfo->expatAccessor.copy((void*)pResult, accessInfo->parseData);
-    deleteAccessInfo(accessInfo);
 
+TERMINAL:
+    deleteAccessInfo(accessInfo);
     return ret;
 }
 

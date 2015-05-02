@@ -6,6 +6,19 @@
 void print_threadConfig(void);
 void print_threadAction(void);
 
+void testFunc1(void);
+void testFunc2(void);
+
+void testFunc1(void)
+{
+}
+
+void testFunc2(void)
+{
+}
+
+
+
 void print_threadConfig(void)
 {
     t_threadConfigList threadConfigList;
@@ -19,6 +32,7 @@ void print_threadConfig(void)
         fprintf(stdout, "threadConfig[%d].parentId=%d\n", i, threadConfigList.list[i].parentId);
     }
 
+    common_free(threadConfigList.list);
 }
 
 void print_threadAction(void)
@@ -26,14 +40,11 @@ void print_threadAction(void)
     t_threadActionListInfo  actionListInfo;
     common_memset(&actionListInfo, 0x00, sizeof(t_threadActionListInfo));
 
-#if 0
     void* handle = dlopen(NULL, RTLD_LAZY);
-#endif
 
     config_getThreadAction("inputfile/threadAction.xml", &actionListInfo);
 
     int threadCount = 0;
-#if 0
     fprintf(stdout, "threadCount=%d\n", actionListInfo.threadCount);
     for( threadCount = 0; threadCount < actionListInfo.threadCount; threadCount++) {
         t_threadActionList* actionList = &actionListInfo.list[threadCount];
@@ -45,7 +56,6 @@ void print_threadAction(void)
             fprintf(stdout, "%p\n", dlsym(handle, action->name)); 
         }
     }
-#endif
 
     threadCount = 0;
     for( threadCount = 0; threadCount < actionListInfo.threadCount; threadCount++) {
@@ -54,9 +64,7 @@ void print_threadAction(void)
     }
     common_free(actionListInfo.list);
 
-#if 0
     dlclose(handle);
-#endif
 }
 
 

@@ -32,12 +32,18 @@ typedef struct _t_expatAccessor_threadActionListInfo_parseData{
 /*  Prototypes                                  */
 /************************************************/
 static int xmlAccessor_threadAction_free(void* pData);
-static int xmlAccesser_threadAction_copy(void* pToData,  void* pFromData);
+static int xmlAccesser_threadAction_copy(void* pToData, t_xmlAccessor_parseData* pFromData);
+
 static void expatAccesser_element_start(void *userData, const XML_Char *name, const XML_Char *atts[]);
 static int expatAccesser_print(void* pParseData);
 
+static void actionList_addAction(t_expatAccessor_threadActionList* actionList,
+        t_expatAccessor_threadAction* action);
 static t_expatAccessor_threadActionList* createActionList(int threadId);
 static void deleteActionList(t_expatAccessor_threadActionList* pThis);
+
+static t_expatAccessor_threadAction* createAction(const XML_Char *atts[]);
+
 /************************************************/
 /*  Gloval vars                                 */
 /************************************************/
@@ -110,10 +116,13 @@ t_expatAccessor_threadActionList* fromData)
     return 0;
 }
 
-static int xmlAccesser_threadAction_copy(void* pToData,  void* pFromData)
+static int xmlAccesser_threadAction_copy(void* pToData, t_xmlAccessor_parseData* pFromData)
 {
     t_expatAccessor_threadActionListInfo_parseData* pData
         = (t_expatAccessor_threadActionListInfo_parseData*)pFromData;
+
+    if(pData->base.isError)
+        return -1;
 
     t_threadActionListInfo*  actionListInfo
         = (t_threadActionListInfo*)pToData;
@@ -192,35 +201,52 @@ static void expatAccesser_element_start(void *userData, const XML_Char *name, co
 
     if(strcmp(name, "threadAction") == 0 ) {
         t_expatAccessor_threadActionList* actionList = pData->pTail;
-
-        t_expatAccessor_threadAction* newAction = 
-        (t_expatAccessor_threadAction*)common_malloc(sizeof(t_expatAccessor_threadAction));
-
-        if(!actionList->top) {
-            actionList->top = actionList->tail = newAction;
-        } else {
-            actionList->tail->next = newAction;
-            actionList->tail = newAction;
-        }
-        newAction->next = NULL;
-
-        int idx = 0;
-        while(atts[idx] != NULL ) {
-            if (strcmp(atts[idx], "functionName") == 0 ) {
-                idx++;
-                common_memcpy(newAction->funcName, atts[idx], strlen(atts[idx]));
-                newAction->funcName[strlen(atts[idx])] = '\0';
-                break;
-            }
-            idx++;
+        t_expatAccessor_threadAction* newAction = createAction(atts);
+        if( NULL == newAction ) {
+            pData->base.isError = 1;
+            return;
         }
 
-
+        actionList_addAction(actionList, newAction);
         actionList->arrayCount++;
         return;
     }
 
     return;
+}
+
+static t_expatAccessor_threadAction* createAction(const XML_Char *atts[])
+{
+    t_expatAccessor_threadAction* newAction = 
+        (t_expatAccessor_threadAction*)common_malloc(sizeof(t_expatAccessor_threadAction));
+
+    const char* value = xmlAccessor_common_findAttributeValue(atts, "functionName");
+    if( NULL == value )
+        goto ERROR;
+
+    if( strlen(value) > ELEMENT_BUF_SIZE-1 )
+        goto ERROR;
+
+    common_memcpy(newAction->funcName, value, strlen(value));
+    newAction->funcName[strlen(value)] = '\0';
+
+    return newAction;
+
+ERROR:
+    common_free(newAction);
+    return NULL;
+}
+
+static void actionList_addAction(t_expatAccessor_threadActionList* actionList,
+        t_expatAccessor_threadAction* action)
+{
+    if(!actionList->top) {
+        actionList->top = actionList->tail = action;
+    } else {
+        actionList->tail->next = action;
+        actionList->tail = action;
+    }
+    action->next = NULL;
 }
 
 static t_expatAccessor_threadActionList* createActionList(int threadId)
