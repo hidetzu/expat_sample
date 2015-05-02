@@ -55,6 +55,7 @@ static t_xmlAccesseInfo_dataOperator s_xmlFileInfoTbl[] = {
         .createFunc = xmlAccesser_threadAction_create,
     },
 
+
 /* 終端エントリ */
     { 
         .filename = "",
@@ -164,11 +165,8 @@ static void deleteAccessInfo(t_xmlAccesseInfo* pThis)
 
 static void value_handler( void *userData, const XML_Char *string, int len )
 {
-    t_xmlAccesseInfo* accessInfo = (t_xmlAccesseInfo*)userData;
-    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->expatAccessor;
-
-    if(parseFunc->value_handler)
-        parseFunc->value_handler(accessInfo->parseData, string, len);
+    printf("%d:%s start \n", __LINE__, __func__);
+    printf("%d:%s end \n", __LINE__, __func__);
 }
 
 static void element_start(void *userData, const XML_Char *name, const XML_Char *atts[])
@@ -178,16 +176,23 @@ static void element_start(void *userData, const XML_Char *name, const XML_Char *
     if(accessInfo->parseData->isError)
         return;
 
-    if(parseFunc->element_start)
-        parseFunc->element_start(accessInfo->parseData, name, atts);
+    unsigned int listCount = 0U;
+    unsigned int idx = 0U;
+    const t_expatAccessor_startTagInfo* startTagInfoList = parseFunc->getStartTagInfoList(&listCount);
+    while( NULL != startTagInfoList[idx].tagName ) {
+        if( common_strcmp(name, startTagInfoList [idx].tagName ) == 0 ) {
+            int ret = startTagInfoList[idx].executeFunc(accessInfo ->parseData, name, atts);
+            if( 0 != ret ) {
+                accessInfo->parseData->isError = 1;
+            }
+            break;
+        }
+        idx++;
+    }
 }
 
 static void element_end(void *userData, const XML_Char *name)
 {
-    t_xmlAccesseInfo* accessInfo = (t_xmlAccesseInfo*)userData;
-    t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->expatAccessor;
-    if(accessInfo->parseData->isError)
-        return;
-    if(parseFunc->element_end)
-        parseFunc->element_end(accessInfo->parseData, name);
+    printf("%d:%s start \n", __LINE__, __func__);
+    printf("%d:%s end \n", __LINE__, __func__);
 }

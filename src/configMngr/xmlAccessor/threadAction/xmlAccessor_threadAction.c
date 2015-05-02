@@ -34,7 +34,6 @@ typedef struct _t_expatAccessor_threadActionListInfo_parseData{
 static int xmlAccessor_threadAction_free(void* pData);
 static int xmlAccesser_threadAction_copy(void* pToData, t_xmlAccessor_parseData* pFromData);
 
-static void expatAccesser_element_start(void *userData, const XML_Char *name, const XML_Char *atts[]);
 static int expatAccesser_print(void* pParseData);
 
 static void actionList_addAction(t_expatAccessor_threadActionList* actionList,
@@ -44,15 +43,24 @@ static void deleteActionList(t_expatAccessor_threadActionList* pThis);
 
 static t_expatAccessor_threadAction* createAction(const XML_Char *atts[]);
 
+static int elmentStart_threadActionList(void* userData,const XML_Char *name, const XML_Char *atts[]);
+static int elmentStart_threadAction(void* userData,const XML_Char *name, const XML_Char *atts[]);
+static const t_expatAccessor_startTagInfo* getStartTagInfoList(unsigned int *pListCount);
+
 /************************************************/
 /*  Gloval vars                                 */
 /************************************************/
 static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
     .copy = xmlAccesser_threadAction_copy,
     .cleanup = xmlAccessor_threadAction_free,
-    .element_start = expatAccesser_element_start,
-    .element_end   = NULL,
-    .value_handler = NULL,
+    .getStartTagInfoList = getStartTagInfoList,
+};
+
+static const t_expatAccessor_startTagInfo s_elementStartFunc[] = {
+    { .tagName = "threadActionList", .executeFunc = elmentStart_threadActionList },
+    { .tagName = "threadAction", .executeFunc = elmentStart_threadAction },
+
+    { .tagName = NULL, .executeFunc = NULL },
 };
 
 /************************************************/
@@ -178,41 +186,50 @@ static int expatAccesser_print(void* pParseData)
     return 0;
 }
 
-static void expatAccesser_element_start(void *userData, const XML_Char *name, const XML_Char *atts[])
+static const t_expatAccessor_startTagInfo* getStartTagInfoList(unsigned int *pListCount)
+{
+    printf("%s:%d:%s start \n", __FILE__,__LINE__, __func__);
+    *pListCount = sizeof(s_elementStartFunc)/sizeof(s_elementStartFunc[0]);
+    return s_elementStartFunc;  
+}
+
+static int elmentStart_threadActionList(void* userData,const XML_Char *name, const XML_Char *atts[])
 {
     t_expatAccessor_threadActionListInfo_parseData* pData =
         (t_expatAccessor_threadActionListInfo_parseData*)userData;
+    printf("%s:%d:%s start \n", __FILE__,__LINE__, __func__);
 
-    printf("[ELEMENT] %s Start!\n", name);
-    if(strcmp(name, "threadActionList") == 0 ) {
-        t_expatAccessor_threadActionList* newActionList =
-            createActionList(common_atoi(atts[1]));
-        if(!pData->pTop) {
-            pData->pTop = pData->pTail = newActionList;
-        } else {
-            pData->pTail->next = newActionList;
-            pData->pTail = newActionList;
-        }
-        newActionList->next = NULL;
-        pData->threadCount++;
+    t_expatAccessor_threadActionList* newActionList =
+        createActionList(common_atoi(atts[1]));
+    if(!pData->pTop) {
+        pData->pTop = pData->pTail = newActionList;
+    } else {
+        pData->pTail->next = newActionList;
+        pData->pTail = newActionList;
+    }
+    newActionList->next = NULL;
+    pData->threadCount++;
+    printf("%s:%d:%s end \n", __FILE__,__LINE__, __func__);
+    return 0;
+}
 
-        return;
+static int elmentStart_threadAction(void* userData,const XML_Char *name, const XML_Char *atts[])
+{
+    t_expatAccessor_threadActionListInfo_parseData* pData =
+        (t_expatAccessor_threadActionListInfo_parseData*)userData;
+    printf("%s:%d:%s start \n", __FILE__,__LINE__, __func__);
+
+    t_expatAccessor_threadActionList* actionList = pData->pTail;
+    t_expatAccessor_threadAction* newAction = createAction(atts);
+    if( NULL == newAction ) {
+        pData->base.isError = 1;
+        return -1;
     }
 
-    if(strcmp(name, "threadAction") == 0 ) {
-        t_expatAccessor_threadActionList* actionList = pData->pTail;
-        t_expatAccessor_threadAction* newAction = createAction(atts);
-        if( NULL == newAction ) {
-            pData->base.isError = 1;
-            return;
-        }
-
-        actionList_addAction(actionList, newAction);
-        actionList->arrayCount++;
-        return;
-    }
-
-    return;
+    actionList_addAction(actionList, newAction);
+    actionList->arrayCount++;
+    printf("%s:%d:%s end \n", __FILE__,__LINE__, __func__);
+    return 0;
 }
 
 static t_expatAccessor_threadAction* createAction(const XML_Char *atts[])

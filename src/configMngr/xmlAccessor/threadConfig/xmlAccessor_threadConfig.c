@@ -1,5 +1,6 @@
 #include <common_capi.h>
 #include <config.h>
+#include <sys/queue.h>
 
 #include "xmlAccessor_threadConfig.h"
 #include "../expatAccessor/expatAccessor_element.h"
@@ -18,6 +19,7 @@ typedef struct _t_expatAccessor_threadConfig_parseData{
     int threadCount;
     t_expatAccessor_threadConfig_threadData* pTop;
     t_expatAccessor_threadConfig_threadData* pTail;
+
 }t_expatAccessor_threadConfig_parseData;
 
 
@@ -26,10 +28,12 @@ typedef struct _t_expatAccessor_threadConfig_parseData{
 /************************************************/
 static int xmlAccesser_threadConfig_copy(void* pToData,  t_xmlAccessor_parseData* pFromData);
 static int xmlAccessor_threadConfig_free(void* pData);
-static void expatAccesser_element_start(void *userData, const XML_Char *name, const XML_Char *atts[]);
 static int expatAccesser_print(void* pParseData);
 
 static t_expatAccessor_threadConfig_threadData* createThreadData(const XML_Char* atts[]);
+static int element_start_threadConfig(void *userData, const XML_Char *name, const XML_Char *atts[]);
+
+static const t_expatAccessor_startTagInfo* getStartTagInfoList(unsigned int *pListCount);
 
 /************************************************/
 /*  Gloval vars                                 */
@@ -37,14 +41,15 @@ static t_expatAccessor_threadConfig_threadData* createThreadData(const XML_Char*
 static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
     .copy  = xmlAccesser_threadConfig_copy,
     .cleanup = xmlAccessor_threadConfig_free,
-    .element_start = expatAccesser_element_start,
-    .element_end   = NULL,
-    .value_handler = NULL,
+    .getStartTagInfoList = getStartTagInfoList,
 };
 
-/************************************************/
-/*  PublicFunctions                             */
-/************************************************/
+
+static const t_expatAccessor_startTagInfo s_elementStartFunc[] = {
+    { .tagName = "threadConfig", .executeFunc = element_start_threadConfig },
+
+    { .tagName = NULL, .executeFunc = NULL },
+};
 
 /************************************************/
 /*  PublicFunctions                             */
@@ -83,7 +88,6 @@ static int xmlAccesser_threadConfig_copy(void* pToData,  t_xmlAccessor_parseData
         toThreadCofig->parentId = pThreadData->parentId;
     
         pThreadData = pThreadData->next;
-
     }
 
     return 0;
@@ -126,32 +130,31 @@ static int expatAccesser_print(void* pParseData)
     return 0;
 }
 
-static void expatAccesser_element_start(
-    void *userData,
-    const XML_Char *name,
-    const XML_Char *atts[])
+static const t_expatAccessor_startTagInfo* getStartTagInfoList(unsigned int *pListCount)
+{
+    *pListCount = sizeof(s_elementStartFunc)/sizeof(s_elementStartFunc[0]);
+    return s_elementStartFunc;  
+}
+
+static int element_start_threadConfig(void *userData, const XML_Char *name, const XML_Char *atts[])
 {
     t_expatAccessor_threadConfig_parseData* pData = (t_expatAccessor_threadConfig_parseData*)userData;
-    printf("[ELEMENT] %s Start!\n", name);
 
-    if(common_strcmp(name, "threadConfig") == 0 ) {
-        t_expatAccessor_threadConfig_threadData* newThreadData
-            = createThreadData(atts);
-        if(NULL == newThreadData) {
-            pData->base.isError = 1;
-            return ;
-        }
-        if(!pData->pTop) {
-            pData->pTop = pData->pTail = newThreadData;
-        } else {
-            pData->pTail->next = newThreadData;
-            pData->pTail = newThreadData;
-        }
-
-        pData->threadCount++;
-
-        return;
+    t_expatAccessor_threadConfig_threadData* newThreadData
+        = createThreadData(atts);
+    if(NULL == newThreadData) {
+        return -1;
     }
+    if(!pData->pTop) {
+        pData->pTop = pData->pTail = newThreadData;
+    } else {
+        pData->pTail->next = newThreadData;
+        pData->pTail = newThreadData;
+    }
+
+    pData->threadCount++;
+
+    return 0;
 }
 
 
