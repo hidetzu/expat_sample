@@ -26,9 +26,9 @@ typedef struct _t_expatAccessor_threadConfig_parseData{
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-static int xmlAccesser_threadConfig_copy(void* pToData,  t_xmlAccessor_parseData* pFromData);
-static int xmlAccessor_threadConfig_free(void* pData);
-static int expatAccesser_print(void* pParseData);
+static int copy(void* pToData,  t_xmlAccessor_parseData* pFromData);
+static void cleanup(void* pData);
+static int print(void* pParseData);
 
 static t_expatAccessor_threadConfig_threadData* createThreadData(const XML_Char* atts[]);
 static int element_start_threadConfig(void *userData, const XML_Char *name, const XML_Char *atts[]);
@@ -39,8 +39,8 @@ static const t_expatAccessor_startTagInfo* getStartTagInfoList(unsigned int *pLi
 /*  Gloval vars                                 */
 /************************************************/
 static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
-    .copy  = xmlAccesser_threadConfig_copy,
-    .cleanup = xmlAccessor_threadConfig_free,
+    .copy  = copy,
+    .cleanup = cleanup,
     .getStartTagInfoList = getStartTagInfoList,
 };
 
@@ -56,8 +56,7 @@ static const t_expatAccessor_startTagInfo s_elementStartFunc[] = {
 /************************************************/
 t_xmlAccessor_parseData* xmlAccesser_threadConfig_create(t_xmlAccesseInfo_expatAccessor* pFuncOperation)
 {
-    t_expatAccessor_threadConfig_parseData* pParaseData =
-        (t_expatAccessor_threadConfig_parseData*)common_malloc(sizeof(t_expatAccessor_threadConfig_parseData));
+    t_expatAccessor_threadConfig_parseData* pParaseData =MALLOC(t_expatAccessor_threadConfig_parseData);
     common_memset(pParaseData, 0x00, sizeof(t_expatAccessor_threadConfig_parseData));
 
     *pFuncOperation = s_xmlParseFunc;
@@ -69,15 +68,15 @@ t_xmlAccessor_parseData* xmlAccesser_threadConfig_create(t_xmlAccesseInfo_expatA
 /*  PrivateFuncitons                            */
 /************************************************/
 
-static int xmlAccesser_threadConfig_copy(void* pToData,  t_xmlAccessor_parseData* pFromData)
+static int copy(void* pToData,  t_xmlAccessor_parseData* pFromData)
 {
     t_threadConfigList* pThreadConfigList = (t_threadConfigList*)pToData;
     t_expatAccessor_threadConfig_parseData* pPaseData = (t_expatAccessor_threadConfig_parseData*)pFromData;
 
     pThreadConfigList->threadCount = pPaseData->threadCount;
-    expatAccesser_print(pPaseData);
+    print(pPaseData);
 
-    pThreadConfigList->list = common_malloc(sizeof(t_threadConfig)*pPaseData->threadCount);
+    pThreadConfigList->list = MALLOC_ARRAY(pPaseData->threadCount, t_threadConfig);
     common_memset(pThreadConfigList->list, 0x00,sizeof(t_threadConfig)*pPaseData->threadCount); 
 
     t_expatAccessor_threadConfig_threadData* pThreadData = pPaseData->pTop;
@@ -93,7 +92,7 @@ static int xmlAccesser_threadConfig_copy(void* pToData,  t_xmlAccessor_parseData
     return 0;
 }
 
-static int xmlAccessor_threadConfig_free(void* pData)
+static void cleanup(void* pData)
 {
     t_expatAccessor_threadConfig_parseData* pPaseData = (t_expatAccessor_threadConfig_parseData*)pData;
     t_expatAccessor_threadConfig_threadData* pTop = pPaseData->pTop;
@@ -112,10 +111,10 @@ static int xmlAccessor_threadConfig_free(void* pData)
 
 TERMINAL:
     common_free(pData);
-    return 0;
+    return;
 }
 
-static int expatAccesser_print(void* pParseData)
+static int print(void* pParseData)
 {
     t_expatAccessor_threadConfig_parseData* pData = (t_expatAccessor_threadConfig_parseData*)pParseData;
 
@@ -160,8 +159,7 @@ static int element_start_threadConfig(void *userData, const XML_Char *name, cons
 
 static t_expatAccessor_threadConfig_threadData* createThreadData(const XML_Char* atts[])
 {
-    t_expatAccessor_threadConfig_threadData* newThreadData = 
-        (t_expatAccessor_threadConfig_threadData*)common_malloc(sizeof(t_expatAccessor_threadConfig_threadData));
+    t_expatAccessor_threadConfig_threadData* newThreadData = MALLOC(t_expatAccessor_threadConfig_threadData);
     common_memset(newThreadData, 0x00, sizeof(t_expatAccessor_threadConfig_threadData));
 
     const char* value = xmlAccessor_common_findAttributeValue(atts, "Id");

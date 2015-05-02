@@ -115,7 +115,7 @@ TERMINAL:
 /************************************************/
 static t_xmlAccesseInfo* createAccessInfo(const char* filename)
 {
-    t_xmlAccesseInfo* inst = (t_xmlAccesseInfo*)common_malloc(sizeof(t_xmlAccesseInfo));
+    t_xmlAccesseInfo* inst = MALLOC(t_xmlAccesseInfo);
     inst->filename = filename;
     inst->fp = NULL;
     inst->parser = NULL;

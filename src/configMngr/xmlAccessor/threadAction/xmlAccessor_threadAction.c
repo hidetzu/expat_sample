@@ -31,10 +31,10 @@ typedef struct _t_expatAccessor_threadActionListInfo_parseData{
 /************************************************/
 /*  Prototypes                                  */
 /************************************************/
-static int xmlAccessor_threadAction_free(void* pData);
-static int xmlAccesser_threadAction_copy(void* pToData, t_xmlAccessor_parseData* pFromData);
+static void cleanup(void* pData);
+static int copy(void* pToData, t_xmlAccessor_parseData* pFromData);
 
-static int expatAccesser_print(void* pParseData);
+static int print(void* pParseData);
 
 static void actionList_addAction(t_expatAccessor_threadActionList* actionList,
         t_expatAccessor_threadAction* action);
@@ -51,8 +51,8 @@ static const t_expatAccessor_startTagInfo* getStartTagInfoList(unsigned int *pLi
 /*  Gloval vars                                 */
 /************************************************/
 static const t_xmlAccesseInfo_expatAccessor s_xmlParseFunc = {
-    .copy = xmlAccesser_threadAction_copy,
-    .cleanup = xmlAccessor_threadAction_free,
+    .copy = copy,
+    .cleanup = cleanup,
     .getStartTagInfoList = getStartTagInfoList,
 };
 
@@ -70,8 +70,7 @@ t_xmlAccessor_parseData* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatA
 {
     printf("%s start\n", __func__);
 
-    t_expatAccessor_threadActionListInfo_parseData* pPaseData =
-        (t_expatAccessor_threadActionListInfo_parseData*)common_malloc(sizeof(t_expatAccessor_threadActionListInfo_parseData));
+    t_expatAccessor_threadActionListInfo_parseData* pPaseData =MALLOC_ARRAY(1, t_expatAccessor_threadActionListInfo_parseData);
     common_memset(pPaseData, 0x00, sizeof(t_expatAccessor_threadActionListInfo_parseData));
 
     *pFuncOperation = s_xmlParseFunc;
@@ -79,7 +78,7 @@ t_xmlAccessor_parseData* xmlAccesser_threadAction_create(t_xmlAccesseInfo_expatA
     return (t_xmlAccessor_parseData*)pPaseData;
 }
 
-static int xmlAccessor_threadAction_free(void* pData)
+static void cleanup(void* pData)
 {
 
     t_expatAccessor_threadActionListInfo_parseData* pPaseData =
@@ -99,7 +98,7 @@ static int xmlAccessor_threadAction_free(void* pData)
     deleteActionList(pTop);
 TERMINAL:
     common_free(pPaseData);
-    return 0;
+    return;
 }
 
 static int threadAction_copyActionList(
@@ -109,9 +108,7 @@ t_expatAccessor_threadActionList* fromData)
     toData->threadId = fromData->threadId;
 
     toData->arrayCount = fromData->arrayCount;
-    toData->array =
-        (t_threadAction*)common_malloc(sizeof(t_threadAction)*toData->arrayCount);
-        
+    toData->array =MALLOC_ARRAY(toData->arrayCount, t_threadAction);
 
     t_expatAccessor_threadAction* actionFromData = fromData->top;
     int idx = 0;
@@ -124,7 +121,7 @@ t_expatAccessor_threadActionList* fromData)
     return 0;
 }
 
-static int xmlAccesser_threadAction_copy(void* pToData, t_xmlAccessor_parseData* pFromData)
+static int copy(void* pToData, t_xmlAccessor_parseData* pFromData)
 {
     t_expatAccessor_threadActionListInfo_parseData* pData
         = (t_expatAccessor_threadActionListInfo_parseData*)pFromData;
@@ -135,9 +132,9 @@ static int xmlAccesser_threadAction_copy(void* pToData, t_xmlAccessor_parseData*
     t_threadActionListInfo*  actionListInfo
         = (t_threadActionListInfo*)pToData;
 
-    expatAccesser_print(pData);
+    print(pData);
     actionListInfo->threadCount = pData->threadCount;
-    actionListInfo->list = common_malloc(sizeof(t_threadActionList) * actionListInfo->threadCount);
+    actionListInfo->list = MALLOC_ARRAY(actionListInfo->threadCount, t_threadActionList);
     
     common_memset(actionListInfo->list, 0x00, sizeof(t_threadActionList)* 2);
 
@@ -159,7 +156,7 @@ static int xmlAccesser_threadAction_copy(void* pToData, t_xmlAccessor_parseData*
 /************************************************/
 /*  PrivateFuncitons                            */
 /************************************************/
-static int expatAccesser_print(void* pParseData)
+static int print(void* pParseData)
 {
     t_expatAccessor_threadActionListInfo_parseData* pData
         = (t_expatAccessor_threadActionListInfo_parseData*)pParseData;
@@ -234,8 +231,7 @@ static int elmentStart_threadAction(void* userData,const XML_Char *name, const X
 
 static t_expatAccessor_threadAction* createAction(const XML_Char *atts[])
 {
-    t_expatAccessor_threadAction* newAction = 
-        (t_expatAccessor_threadAction*)common_malloc(sizeof(t_expatAccessor_threadAction));
+    t_expatAccessor_threadAction* newAction = MALLOC(t_expatAccessor_threadAction);
 
     const char* value = xmlAccessor_common_findAttributeValue(atts, "functionName");
     if( NULL == value )
@@ -268,8 +264,7 @@ static void actionList_addAction(t_expatAccessor_threadActionList* actionList,
 
 static t_expatAccessor_threadActionList* createActionList(int threadId)
 {
-    t_expatAccessor_threadActionList* newActionList =
-        (t_expatAccessor_threadActionList*)common_malloc(sizeof(t_expatAccessor_threadActionList));
+    t_expatAccessor_threadActionList* newActionList = MALLOC(t_expatAccessor_threadActionList);
     common_memset(newActionList, 0x00, sizeof(t_expatAccessor_threadActionList));
     newActionList->threadId = threadId;
     return newActionList;
