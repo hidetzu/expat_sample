@@ -1,15 +1,6 @@
 <?xml version="1.0"?>
 <threadConfigList>
-  <threadConfig>
-    <id>0</id>
-	<parentId>-1</parentId>
-  </threadConfig>
-  <threadConfig>
-    <id>1</id>
-	<parentId>-1</parentId>
-  </threadConfig>
-  <threadConfig>
-    <id>2</id>
-	<parentId>0</parentId>
-  </threadConfig>
+	<threadConfig id="0" parentId="-1" />
+	<threadConfig id="1" parentId="-1" />
+	<threadConfig id="2" parentId="0" />
 </threadConfigList>

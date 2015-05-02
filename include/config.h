@@ -27,7 +27,7 @@ typedef struct _t_threadActionList {
 
 typedef struct _t_threadActionListInfo {
     int threadCount;
-    t_threadActionList list[10];
+    t_threadActionList* list;
 }t_threadActionListInfo ;
 
 

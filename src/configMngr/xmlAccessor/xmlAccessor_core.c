@@ -99,7 +99,7 @@ int xmlAccesser_parser(const char* filename ,void* pResult)
         ret = accessInfo->expatAccessor.copy((void*)pResult, accessInfo->parseData);
     deleteAccessInfo(accessInfo);
 
-    return 0;
+    return ret;
 }
 
 
@@ -161,7 +161,8 @@ static void value_handler( void *userData, const XML_Char *string, int len )
     t_xmlAccesseInfo* accessInfo = (t_xmlAccesseInfo*)userData;
     t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->expatAccessor;
 
-    parseFunc->value_handler(accessInfo->parseData, string, len);
+    if(parseFunc->value_handler)
+        parseFunc->value_handler(accessInfo->parseData, string, len);
 }
 
 static void element_start(void *userData, const XML_Char *name, const XML_Char *atts[])
@@ -171,7 +172,8 @@ static void element_start(void *userData, const XML_Char *name, const XML_Char *
     if(accessInfo->parseData->isError)
         return;
 
-    parseFunc->element_start(accessInfo->parseData, name, atts);
+    if(parseFunc->element_start)
+        parseFunc->element_start(accessInfo->parseData, name, atts);
 }
 
 static void element_end(void *userData, const XML_Char *name)
@@ -180,5 +182,6 @@ static void element_end(void *userData, const XML_Char *name)
     t_xmlAccesseInfo_expatAccessor* parseFunc = &accessInfo->expatAccessor;
     if(accessInfo->parseData->isError)
         return;
-    parseFunc->element_end(accessInfo->parseData, name);
+    if(parseFunc->element_end)
+        parseFunc->element_end(accessInfo->parseData, name);
 }

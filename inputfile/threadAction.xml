@@ -2,19 +2,11 @@
 <threadActionListConfig>
 	<!-- test -->
 	<threadActionList threadID="0">
-		<threadAction>
-			<executeFunc>testFunc1</executeFunc>
-	 	</threadAction>
-	 	<threadAction>
-			<executeFunc>testFunc2</executeFunc>
-	  	</threadAction>
+		<threadAction functionName="testFunc1"  />
+		<threadAction functionName="testFunc2"  />
   	</threadActionList>
 	<threadActionList threadID="1">
-		<threadAction>
-			<executeFunc>testFunc1</executeFunc>
-	 	</threadAction>
-	 	<threadAction>
-			<executeFunc>testFunc2</executeFunc>
-	  	</threadAction>
+		<threadAction functionName="testFunc1"  />
+		<threadAction functionName="testFunc2"  />
   	</threadActionList>
 </threadActionListConfig>
